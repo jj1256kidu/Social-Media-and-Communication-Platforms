@@ -3,8 +3,14 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --neon-blue: #00f7ff;
+    --neon-purple: #9d00ff;
+    --cyber-green: #00ffa3;
+  }
+  
   body {
-    @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+    @apply bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-gray-100 min-h-screen;
   }
 }
 
@@ -31,6 +37,57 @@
   
   .message-bubble-received {
     @apply bg-gray-200 text-gray-800;
+  }
+
+  .glass-card {
+    @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-xl;
+  }
+
+  .glass-button {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-300
+           bg-white/10 hover:bg-white/20 backdrop-blur-sm
+           border border-white/20 hover:border-white/40
+           shadow-lg hover:shadow-cyan-500/20;
+  }
+
+  .neon-border {
+    @apply relative;
+    box-shadow: 0 0 10px theme('colors.cyan.400'),
+                0 0 20px theme('colors.purple.400');
+  }
+
+  .cyber-text {
+    @apply bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 
+           text-transparent bg-clip-text font-bold;
+  }
+
+  .hover-glow {
+    @apply transition-all duration-300;
+  }
+  
+  .hover-glow:hover {
+    text-shadow: 0 0 8px theme('colors.cyan.400');
+    box-shadow: 0 0 15px theme('colors.cyan.400/20');
+  }
+
+  .futuristic-input {
+    @apply bg-white/10 backdrop-blur-sm border border-white/20 
+           rounded-lg px-4 py-2 focus:outline-none focus:ring-2 
+           focus:ring-cyan-400/50 transition-all duration-300
+           text-white placeholder-white/50;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-lg
+           hover:shadow-cyan-500/20 cursor-pointer;
+  }
+
+  .neon-gradient {
+    background: linear-gradient(
+      135deg,
+      rgba(0, 247, 255, 0.1) 0%,
+      rgba(157, 0, 255, 0.1) 100%
+    );
   }
 }
 
