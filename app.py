@@ -54,8 +54,18 @@ if 'posts' not in st.session_state:
             ]
         }
     ]
-if 'current_user' not in st.session_state:
-    st.session_state.current_user = None
+
+# Set default user
+st.session_state.current_user = {
+    'id': '1',
+    'username': 'Guest',
+    'bio': "Welcome to ForumHub!",
+    'karma': 0,
+    'threads': 0,
+    'comments': 0,
+    'level': "New User"
+}
+
 if 'categories' not in st.session_state:
     st.session_state.categories = [
         {
@@ -1052,511 +1062,119 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Login Page
-if not st.session_state.current_user:
-    # Hide Streamlit's default elements
-    st.markdown("""
-        <style>
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        .stApp > header {visibility: hidden;}
-        .stApp {
-            margin-top: -80px;
-        }
-        .brand-area {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .brand-name {
-            font-size: 42px;
-            font-weight: 700;
-            background: linear-gradient(45deg, #00C6FF, #0072FF);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0px;
-            line-height: 1;
-        }
-        .tagline {
-            font-size: 16px;
-            color: #666;
-            margin-top: 0px;
-        }
-        .stForm {
-            margin-top: -20px;
-        }
-        .stTextInput > div > div > input {
-            padding: 10px 15px;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("""
-        <div style="display: flex; justify-content: center; align-items: center; min-height: 90vh; padding: 10px;">
-            <div style="width: 100%; max-width: 850px; display: flex; gap: 20px; align-items: center;">
-                <div class="login-container" style="flex: 1;">
-                    <div class="brand-area">
-                        <div class="brand-name">ForumHub</div>
-                        <div class="tagline">Where Ideas Thread Together</div>
-                    </div>
-                    <div style="width: 100%; height: 180px; margin-top: -10px;">
-                    """, unsafe_allow_html=True)
-    
-    if lottie_wave:
-        st_lottie(lottie_wave, height=180, key="wave")
-    
-    st.markdown("""
-                    </div>
-                </div>
-                <div class="login-card" style="flex: 1; margin-top: -20px;">
-                    <div style="padding: 15px;">
-    """, unsafe_allow_html=True)
-    
-    with st.form("login_form", clear_on_submit=True):
-        username = st.text_input("Username", placeholder="Enter your username")
-        password = st.text_input("Password", type="password", placeholder="Enter your password")
-        cols = st.columns([3, 1])
-        with cols[0]:
-            remember_me = st.checkbox("Remember me")
-        with cols[1]:
-            st.markdown('<div class="forgot-password" style="margin-top: 3px;"><a href="#">Forgot?</a></div>', unsafe_allow_html=True)
-        
-        submitted = st.form_submit_button("Login", use_container_width=True)
-        
-        if submitted:
-            if username == "testuser" and password == "pass123":
-                st.session_state.current_user = {
-                    'id': str(random.randint(1, 1000)),
-                    'username': username,
-                    'bio': "Tech enthusiast. Love to share thoughts.",
-                    'karma': 1234,
-                    'threads': 4,
-                    'comments': 9,
-                    'level': "Influencer"
-                }
-                st.success("Login successful!")
-                if lottie_login_success:
-                    st_lottie(lottie_login_success, height=80, key="login_success")
-                st.balloons()
-                time.sleep(1)
-                st.rerun()
-            else:
-                st.error("Invalid credentials")
-                st.markdown("""
-                <script>
-                    document.querySelector('.login-card').classList.add('shake');
-                    setTimeout(() => {
-                        document.querySelector('.login-card').classList.remove('shake');
-                    }, 500);
-                </script>
-                """, unsafe_allow_html=True)
-    
-    st.markdown("""
-                    </div>
-                </div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
+# Set default user
+st.session_state.current_user = {
+    'id': '1',
+    'username': 'Guest',
+    'bio': "Welcome to ForumHub!",
+    'karma': 0,
+    'threads': 0,
+    'comments': 0,
+    'level': "New User"
+}
 
-# Main App (After Login)
-elif st.session_state.current_user:
-    # Add particles background
-    add_particles_background()
-    
-    # Add theme switcher
-    theme_switcher()
-    
-    # Add enhanced thread creation modal
-    add_enhanced_thread_modal()
-    
-    # Top Navigation Bar
-    search_col, profile_col = st.columns([3, 1])
-    with search_col:
-        search_query = st.text_input("🔍", placeholder="Search threads...", label_visibility="collapsed")
-    with profile_col:
-        if st.button(f"👤 @{st.session_state.current_user['username']}", type="primary"):
-            st.session_state.show_profile = True
+# Add particles background
+add_particles_background()
 
-    # Categories Section
-    st.markdown("### 📚 Categories")
-    cat_cols = st.columns(4)
-    for idx, category in enumerate(st.session_state.categories):
-        with cat_cols[idx]:
-            if st.button(f"{category['icon']} {category['name'].split()[-1]}", 
-                        key=f"cat_{category['id']}", 
-                        use_container_width=True):
-                handle_category_selection(category['id'])
+# Add theme switcher
+theme_switcher()
 
-    # Display filtered or searched posts
-    if search_query:
-        filtered_posts = [post for post in st.session_state.posts 
-                         if search_query.lower() in post['title'].lower() 
-                         or search_query.lower() in post['content'].lower()]
-        st.markdown("### 🔍 Search Results")
-    elif 'selected_category' in st.session_state and st.session_state.selected_category:
-        filtered_posts = [post for post in st.session_state.posts 
-                         if post['category_id'] == st.session_state.selected_category]
-        category_name = next(c['name'] for c in st.session_state.categories 
-                           if c['id'] == st.session_state.selected_category)
-        st.markdown(f"### {category_name}")
-    else:
-        st.markdown("### 🔥 Trending Threads")
-        filtered_posts = sorted(st.session_state.posts, 
-                              key=lambda x: (x['upvotes'] - x['downvotes']), 
-                              reverse=True)
-
-    # Display posts with enhanced UI
-    for post in filtered_posts:
-        with st.container():
-            st.markdown(f"""
-                <div class="thread-card">
-                    <h3>{post['title']}</h3>
-                    <p>{post['content'][:200]}...</p>
-                    <div class="thread-meta">
-                        <button class="upvote-button" onclick="handleUpvote(this)">🔼 {post['upvotes']} Upvotes</button>
-                        <span>💬 {len(post['comments'])} Comments</span>
-                        <span>👤 {post['author']}</span>
-                        <span>🕒 {post['timestamp']}</span>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            col1, col2 = st.columns([1, 1])
-            with col1:
-                if st.button("👍 Upvote", key=f"up_{post['id']}"):
-                    handle_upvote(post['id'])
-                    trigger_confetti()
-                    st.rerun()
-            with col2:
-                if st.button("💬 Comment", key=f"comment_{post['id']}"):
-                    st.session_state.commenting_on = post['id']
-
-            # Show comments with enhanced UI
-            if len(post['comments']) > 0:
-                with st.expander(f"Show {len(post['comments'])} comments"):
-                    for comment in post['comments']:
-                        st.markdown(f"""
-                            <div style="padding: 10px; margin: 5px 0; background: rgba(255, 255, 255, 0.8); border-radius: 10px; backdrop-filter: blur(8px);">
-                                <strong>{comment['author']}</strong>: {comment['content']}
-                            </div>
-                        """, unsafe_allow_html=True)
-
-    # Add event listener for thread creation
-    components.html("""
-        <script>
-            document.addEventListener('create_thread', function(e) {
-                const { title, content } = e.detail;
-                // Trigger Streamlit to create new post
-                const event = new CustomEvent('streamlit:setComponentValue', {
-                    detail: { value: { title, content } }
-                });
-                document.dispatchEvent(event);
-            });
-        </script>
-    """, height=0)
-
-    # Create new thread form
-    if st.session_state.current_user:
-        # Add floating create button with tooltip
-        components.html("""
-            <div class="tooltip" style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
-                <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_tll0j4bb.json" 
-                              background="transparent" speed="1" 
-                              style="width: 60px; height: 60px; cursor: pointer;" 
-                              onclick="showLoading(); openModal()" 
-                              loop autoplay></lottie-player>
-                <span class="tooltip-text">Create New Thread</span>
-            </div>
-        """, height=0)
-
-        # Handle thread creation with loading state
-        if 'create_thread' in st.session_state:
-            showLoading()
-            create_new_post(
-                category_id=st.session_state.create_thread.get('category', '1'),
-                title=st.session_state.create_thread['title'],
-                content=st.session_state.create_thread['content']
-            )
-            st.session_state.create_thread = None
-            hideLoading()
-            showToast("Thread created successfully!", "success")
-            st.rerun()
-
-# Add enhanced UX components
-def add_enhanced_ux():
-    components.html("""
-        <style>
-            /* Loading States */
-            .loading {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.5);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 9999;
-                backdrop-filter: blur(5px);
-            }
-            .loading-spinner {
-                width: 50px;
-                height: 50px;
-                border: 5px solid #2f54eb;
-                border-radius: 50%;
-                border-top-color: transparent;
-                animation: spin 1s linear infinite;
-            }
-            @keyframes spin {
-                to { transform: rotate(360deg); }
-            }
-
-            /* Toast Notifications */
-            .toast {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 15px 25px;
-                background: rgba(30, 30, 46, 0.9);
-                color: white;
-                border-radius: 10px;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-                animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
-                z-index: 1000;
-            }
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
-            }
-
-            /* Tooltips */
-            .tooltip {
-                position: relative;
-                display: inline-block;
-            }
-            .tooltip .tooltip-text {
-                visibility: hidden;
-                width: 120px;
-                background-color: rgba(30, 30, 46, 0.9);
-                color: white;
-                text-align: center;
-                border-radius: 6px;
-                padding: 5px;
-                position: absolute;
-                z-index: 1;
-                bottom: 125%;
-                left: 50%;
-                transform: translateX(-50%);
-                opacity: 0;
-                transition: opacity 0.3s;
-            }
-            .tooltip:hover .tooltip-text {
-                visibility: visible;
-                opacity: 1;
-            }
-
-            /* Progress Indicators */
-            .progress-bar {
-                height: 4px;
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 2px;
-                overflow: hidden;
-                margin: 10px 0;
-            }
-            .progress-bar-fill {
-                height: 100%;
-                background: linear-gradient(90deg, #2f54eb, #1a365d);
-                transition: width 0.3s ease;
-            }
-
-            /* Interactive Elements */
-            .interactive-element {
-                transition: all 0.3s ease;
-                cursor: pointer;
-            }
-            .interactive-element:hover {
-                transform: scale(1.05);
-            }
-            .interactive-element:active {
-                transform: scale(0.95);
-            }
-
-            /* Form Validation */
-            .input-error {
-                border-color: #ff4d4f !important;
-                animation: shake 0.5s;
-            }
-            .error-message {
-                color: #ff4d4f;
-                font-size: 12px;
-                margin-top: 5px;
-                animation: fadeIn 0.3s ease;
-            }
-
-            /* Empty States */
-            .empty-state {
-                text-align: center;
-                padding: 40px;
-                color: #666;
-            }
-            .empty-state-icon {
-                font-size: 48px;
-                margin-bottom: 20px;
-                animation: float 3s ease-in-out infinite;
-            }
-
-            /* Success States */
-            .success-state {
-                background: rgba(82, 196, 26, 0.1);
-                border: 1px solid rgba(82, 196, 26, 0.2);
-                border-radius: 10px;
-                padding: 15px;
-                margin: 10px 0;
-                animation: fadeIn 0.3s ease;
-            }
-
-            /* Hover Effects */
-            .hover-effect {
-                transition: all 0.3s ease;
-            }
-            .hover-effect:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            }
-
-            /* Focus States */
-            .focus-effect:focus {
-                outline: none;
-                box-shadow: 0 0 0 2px rgba(47, 84, 235, 0.3);
-            }
-
-            /* Responsive Design */
-            @media (max-width: 768px) {
-                .container {
-                    padding: 10px;
-                }
-                .card {
-                    margin: 10px 0;
-                }
-            }
-        </style>
-
-        <script>
-            // Show loading state
-            function showLoading() {
-                const loading = document.createElement('div');
-                loading.className = 'loading';
-                loading.innerHTML = '<div class="loading-spinner"></div>';
-                document.body.appendChild(loading);
-            }
-
-            // Hide loading state
-            function hideLoading() {
-                const loading = document.querySelector('.loading');
-                if (loading) {
-                    loading.remove();
-                }
-            }
-
-            // Show toast notification
-            function showToast(message, type = 'info') {
-                const toast = document.createElement('div');
-                toast.className = 'toast';
-                toast.textContent = message;
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 3000);
-            }
-
-            // Form validation
-            function validateForm(form) {
-                let isValid = true;
-                const inputs = form.querySelectorAll('input, textarea');
-                inputs.forEach(input => {
-                    if (!input.value.trim()) {
-                        input.classList.add('input-error');
-                        isValid = false;
-                    } else {
-                        input.classList.remove('input-error');
-                    }
-                });
-                return isValid;
-            }
-
-            // Handle form submission
-            function handleFormSubmit(form, callback) {
-                form.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    if (validateForm(form)) {
-                        showLoading();
-                        callback(form);
-                    }
-                });
-            }
-
-            // Add tooltips
-            function addTooltips() {
-                const elements = document.querySelectorAll('[data-tooltip]');
-                elements.forEach(el => {
-                    const tooltip = document.createElement('span');
-                    tooltip.className = 'tooltip-text';
-                    tooltip.textContent = el.getAttribute('data-tooltip');
-                    el.appendChild(tooltip);
-                });
-            }
-
-            // Initialize UX enhancements
-            document.addEventListener('DOMContentLoaded', () => {
-                addTooltips();
-                // Add other UX initializations here
-            });
-        </script>
-    """, height=0)
-
-# In the main app section, add this after the session state initialization
-add_enhanced_ux()
+# Add enhanced thread creation modal
 add_enhanced_thread_modal()
 
-# Add event listener for thread creation
+# Top Navigation Bar
+search_col, profile_col = st.columns([3, 1])
+with search_col:
+    search_query = st.text_input("🔍", placeholder="Search threads...", label_visibility="collapsed")
+with profile_col:
+    if st.button(f"👤 @{st.session_state.current_user['username']}", type="primary"):
+        st.session_state.show_profile = True
+
+# Categories Section
+st.markdown("### 📚 Categories")
+cat_cols = st.columns(4)
+for idx, category in enumerate(st.session_state.categories):
+    with cat_cols[idx]:
+        if st.button(f"{category['icon']} {category['name'].split()[-1]}", 
+                    key=f"cat_{category['id']}", 
+                    use_container_width=True):
+            handle_category_selection(category['id'])
+
+# Display filtered or searched posts
+if search_query:
+    filtered_posts = [post for post in st.session_state.posts 
+                     if search_query.lower() in post['title'].lower() 
+                     or search_query.lower() in post['content'].lower()]
+    st.markdown("### 🔍 Search Results")
+elif 'selected_category' in st.session_state and st.session_state.selected_category:
+    filtered_posts = [post for post in st.session_state.posts 
+                     if post['category_id'] == st.session_state.selected_category]
+    category_name = next(c['name'] for c in st.session_state.categories 
+                       if c['id'] == st.session_state.selected_category)
+    st.markdown(f"### {category_name}")
+else:
+    st.markdown("### 🔥 Trending Threads")
+    filtered_posts = sorted(st.session_state.posts, 
+                          key=lambda x: (x['upvotes'] - x['downvotes']), 
+                          reverse=True)
+
+# Display posts with enhanced UI
+for post in filtered_posts:
+    with st.container():
+        st.markdown(f"""
+            <div class="thread-card">
+                <h3>{post['title']}</h3>
+                <p>{post['content'][:200]}...</p>
+                <div class="thread-meta">
+                    <button class="upvote-button" onclick="handleUpvote(this)">🔼 {post['upvotes']} Upvotes</button>
+                    <span>💬 {len(post['comments'])} Comments</span>
+                    <span>👤 {post['author']}</span>
+                    <span>🕒 {post['timestamp']}</span>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            if st.button("👍 Upvote", key=f"up_{post['id']}"):
+                handle_upvote(post['id'])
+                trigger_confetti()
+                st.rerun()
+        with col2:
+            if st.button("💬 Comment", key=f"comment_{post['id']}"):
+                st.session_state.commenting_on = post['id']
+
+        # Show comments with enhanced UI
+        if len(post['comments']) > 0:
+            with st.expander(f"Show {len(post['comments'])} comments"):
+                for comment in post['comments']:
+                    st.markdown(f"""
+                        <div style="padding: 10px; margin: 5px 0; background: rgba(255, 255, 255, 0.8); border-radius: 10px; backdrop-filter: blur(8px);">
+                            <strong>{comment['author']}</strong>: {comment['content']}
+                        </div>
+                    """, unsafe_allow_html=True)
+
+# Add floating create button with tooltip
 components.html("""
-    <script>
-        document.addEventListener('create_thread', function(e) {
-            const { title, content } = e.detail;
-            // Trigger Streamlit to create new post
-            const event = new CustomEvent('streamlit:setComponentValue', {
-                detail: { value: { title, content } }
-            });
-            document.dispatchEvent(event);
-        });
-    </script>
+    <div class="tooltip" style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
+        <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_tll0j4bb.json" 
+                      background="transparent" speed="1" 
+                      style="width: 60px; height: 60px; cursor: pointer;" 
+                      onclick="showLoading(); openModal()" 
+                      loop autoplay></lottie-player>
+        <span class="tooltip-text">Create New Thread</span>
+    </div>
 """, height=0)
 
-# Create new thread form
-if st.session_state.current_user:
-    # Add floating create button with tooltip
-    components.html("""
-        <div class="tooltip" style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
-            <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_tll0j4bb.json" 
-                          background="transparent" speed="1" 
-                          style="width: 60px; height: 60px; cursor: pointer;" 
-                          onclick="showLoading(); openModal()" 
-                          loop autoplay></lottie-player>
-            <span class="tooltip-text">Create New Thread</span>
-        </div>
-    """, height=0)
-
-    # Handle thread creation with loading state
-    if 'create_thread' in st.session_state:
-        showLoading()
-        create_new_post(
-            category_id=st.session_state.create_thread.get('category', '1'),
-            title=st.session_state.create_thread['title'],
-            content=st.session_state.create_thread['content']
-        )
-        st.session_state.create_thread = None
-        hideLoading()
-        showToast("Thread created successfully!", "success")
-        st.rerun() 
+# Handle thread creation with loading state
+if 'create_thread' in st.session_state:
+    showLoading()
+    create_new_post(
+        category_id=st.session_state.create_thread.get('category', '1'),
+        title=st.session_state.create_thread['title'],
+        content=st.session_state.create_thread['content']
+    )
+    st.session_state.create_thread = None
+    hideLoading()
+    showToast("Thread created successfully!", "success")
+    st.rerun() 
