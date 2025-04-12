@@ -1,49 +1,61 @@
-# Minimal Messenger
+# Forum Application
 
-A minimalist messaging app with group chats and media sharing capabilities, built with Streamlit.
+A modern forum application with categories, threads, and upvoting functionality.
 
 ## Features
-
-- Clean, minimalist design
-- Group chat functionality
-- Media sharing (images)
-- Real-time messaging
-- User-friendly interface
+- User authentication
+- Categories and threads
+- Upvote/downvote system
+- Rich text editor
+- Dark mode support
+- Voice input
+- Search functionality
 
 ## Installation
 
-1. Clone this repository
-2. Install the required dependencies:
+1. Download the project files
+2. Open terminal in the project directory
+3. Install dependencies:
 ```bash
-pip install -r requirements.txt
+npm install
+# or
+yarn install
 ```
 
-## Running the App
+## Running the Application
 
-To run the app locally:
+1. Start the development server:
 ```bash
-streamlit run app.py
+npm start
+# or
+yarn start
 ```
 
-## Usage
+2. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-1. Select a group from the sidebar or create a new one
-2. Type your message in the input field
-3. Upload images using the paperclip icon
-4. Messages are organized by groups
-5. Switch between groups using the sidebar
+## Project Structure
+```
+src/
+├── components/     # React components
+├── App.tsx        # Main application
+└── index.tsx      # Entry point
+```
 
-## Technologies Used
-
-- Streamlit
-- Python
-- Pillow (for image handling)
-- Streamlit-chat (for chat interface)
-
-## Deployment
-
-The app can be deployed on Streamlit Cloud or any other platform that supports Streamlit applications.
+## Dependencies
+- React
+- TypeScript
+- Tailwind CSS
+- Heroicons
+- Framer Motion
 
 ## Contributing
 
-Feel free to submit issues and enhancement requests! 
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details. 
