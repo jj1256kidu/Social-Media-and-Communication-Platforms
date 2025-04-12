@@ -5,6 +5,7 @@ import random
 import json
 from streamlit_lottie import st_lottie
 import requests
+import time
 
 # Initialize session state
 if 'posts' not in st.session_state:
@@ -43,7 +44,7 @@ if 'categories' not in st.session_state:
         }
     ]
 
-# Load Lottie animation
+# Load Lottie animations
 def load_lottieurl(url: str):
     r = requests.get(url)
     if r.status_code != 200:
@@ -51,13 +52,34 @@ def load_lottieurl(url: str):
     return r.json()
 
 lottie_coding = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_fcfjwiyb.json")
+lottie_login_success = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_hu9cd9.json")
+lottie_typing = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_yyjaqn.json")
+lottie_send = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_8w5pns.json")
 
-# Custom CSS
+# Custom CSS with animations
 st.markdown("""
 <style>
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    @keyframes glow {
+        0% { box-shadow: 0 0 5px rgba(0,198,255,0.5); }
+        50% { box-shadow: 0 0 20px rgba(0,198,255,0.8); }
+        100% { box-shadow: 0 0 5px rgba(0,198,255,0.5); }
+    }
     .stApp {
         background-color: #0F1117;
         color: #ffffff;
+    }
+    .login-container {
+        animation: float 6s ease-in-out infinite;
     }
     .post-card {
         background-color: #1E1E2E;
@@ -70,6 +92,7 @@ st.markdown("""
     .post-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        animation: glow 2s infinite;
     }
     .category-card {
         background-color: #1E1E2E;
@@ -81,6 +104,7 @@ st.markdown("""
     }
     .category-card:hover {
         transform: translateY(-5px);
+        animation: glow 2s infinite;
     }
     .vote-button {
         background-color: #2D2D3D;
@@ -88,10 +112,15 @@ st.markdown("""
         border-radius: 8px;
         padding: 8px 15px;
         cursor: pointer;
-        transition: background-color 0.3s ease;
+        transition: all 0.3s ease;
     }
     .vote-button:hover {
         background-color: #3D3D4D;
+        transform: scale(1.1);
+    }
+    .vote-button:active {
+        transform: scale(1.3);
+        background-color: #39FF14;
     }
     .stButton>button {
         background-color: #00C6FF;
@@ -109,11 +138,21 @@ st.markdown("""
         background-color: #1E1E2E;
         color: #ffffff;
         border: 1px solid #3D3D4D;
+        transition: all 0.3s ease;
+    }
+    .stTextInput>div>div>input:focus {
+        border-color: #00C6FF;
+        box-shadow: 0 0 10px rgba(0,198,255,0.5);
     }
     .stTextArea>div>div>textarea {
         background-color: #1E1E2E;
         color: #ffffff;
         border: 1px solid #3D3D4D;
+        transition: all 0.3s ease;
+    }
+    .stTextArea>div>div>textarea:focus {
+        border-color: #00C6FF;
+        box-shadow: 0 0 10px rgba(0,198,255,0.5);
     }
     .stSelectbox>div>div>div {
         background-color: #1E1E2E;
@@ -125,11 +164,43 @@ st.markdown("""
     .stExpander {
         background-color: #1E1E2E;
         border-radius: 15px;
+        transition: all 0.3s ease;
     }
     .stForm {
         background-color: #1E1E2E;
         border-radius: 15px;
         padding: 20px;
+    }
+    .avatar-ring {
+        position: relative;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #00C6FF;
+        animation: pulse 2s infinite;
+    }
+    .avatar-ring::before {
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        right: -5px;
+        bottom: -5px;
+        border: 2px solid #00C6FF;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+    .progress-bar {
+        height: 5px;
+        background: #1E1E2E;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+    .progress-bar-fill {
+        height: 100%;
+        background: #00C6FF;
+        border-radius: 5px;
+        transition: width 0.3s ease;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -138,10 +209,12 @@ st.markdown("""
 if not st.session_state.current_user:
     col1, col2 = st.columns([1, 1])
     with col1:
+        st.markdown('<div class="login-container">', unsafe_allow_html=True)
         st.title("Welcome to ForumHub")
         st.markdown("A modern forum for tech enthusiasts")
         if lottie_coding:
             st_lottie(lottie_coding, height=300, key="coding")
+        st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
         st.header("Login")
@@ -162,7 +235,10 @@ if not st.session_state.current_user:
                         'level': "Influencer"
                     }
                     st.success("Login successful!")
+                    if lottie_login_success:
+                        st_lottie(lottie_login_success, height=150, key="login_success")
                     st.balloons()
+                    time.sleep(2)  # Show success animation
                     st.experimental_rerun()
                 else:
                     st.error("Invalid credentials")
@@ -175,6 +251,7 @@ else:
     
     # Sidebar
     with st.sidebar:
+        st.markdown('<div class="avatar-ring"></div>', unsafe_allow_html=True)
         st.header(f"👤 {st.session_state.current_user['username']}")
         st.markdown(f"**Level:** {st.session_state.current_user['level']}")
         st.markdown(f"**Karma:** {st.session_state.current_user['karma']}")
@@ -230,11 +307,20 @@ else:
         with st.expander("➕ Create New Post", expanded=False):
             with st.form("new_post_form"):
                 title = st.text_input("Title")
-                content = st.text_area("Content")
+                content = st.text_area("Content", placeholder="Start typing your thoughts... |")
+                if content:
+                    progress = min(len(content) / 500 * 100, 100)
+                    st.markdown(f"""
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" style="width: {progress}%"></div>
+                    </div>
+                    """, unsafe_allow_html=True)
                 category = st.selectbox("Category", [c['name'] for c in st.session_state.categories])
                 submitted = st.form_submit_button("Post")
                 
                 if submitted and title and content:
+                    if lottie_send:
+                        st_lottie(lottie_send, height=100, key="send")
                     new_post = {
                         'id': str(random.randint(1, 1000)),
                         'title': title,
@@ -249,4 +335,5 @@ else:
                     st.session_state.posts.append(new_post)
                     st.success("Post created successfully!")
                     st.balloons()
+                    time.sleep(2)  # Show success animation
                     st.experimental_rerun() 
