@@ -7,7 +7,6 @@ from streamlit_lottie import st_lottie
 import requests
 import time
 import streamlit.components.v1 as components
-from streamlit_theme import st_theme
 
 # Initialize session state with dummy data
 if 'posts' not in st.session_state:
@@ -818,7 +817,7 @@ elif st.session_state.current_user:
 
 # Add theme switcher component
 def theme_switcher():
-    st.markdown("""
+    components.html("""
         <div class="theme-switcher">
             <select onchange="changeTheme(this.value)">
                 <option value="pastel">🌈 Pastel</option>
@@ -826,7 +825,21 @@ def theme_switcher():
                 <option value="space">🪐 Space</option>
             </select>
         </div>
-    """, unsafe_allow_html=True)
+        <script>
+            function changeTheme(value) {
+                let body = document.querySelector('.stApp');
+                if (value === 'pastel') {
+                    body.style.background = 'linear-gradient(120deg, #f9f9f9, #e0f7fa, #d0e1f9)';
+                } else if (value === 'sunset') {
+                    body.style.background = 'linear-gradient(120deg, #fbc2eb, #a6c1ee)';
+                } else if (value === 'space') {
+                    body.style.background = 'linear-gradient(120deg, #0f2027, #203a43, #2c5364)';
+                }
+                body.style.backgroundSize = '400% 400%';
+                body.style.animation = 'gradientBG 15s ease infinite';
+            }
+        </script>
+    """, height=0)
 
 # Add confetti component
 def trigger_confetti():
