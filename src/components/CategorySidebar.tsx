@@ -12,35 +12,41 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
   onSelectCategory,
 }) => {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-      <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+    <div className="glass-card rounded-xl p-6 sticky top-24">
+      <h2 className="text-xl font-bold cyber-text mb-6 flex items-center">
         Categories
+        <span className="ml-2 animate-pulse">_</span>
       </h2>
-      <div className="space-y-2">
+      <div className="space-y-3">
         {mockCategories.map((category, index) => (
           <motion.button
             key={category.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
             onClick={() => onSelectCategory(category.id)}
-            className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 ${
+            className={`w-full glass-button rounded-xl transition-all duration-300 ${
               selectedCategory === category.id
-                ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+                ? 'border-cyan-400/50 text-cyan-400 shadow-lg shadow-cyan-500/20'
+                : 'hover:border-purple-400/50 hover:text-purple-400'
             }`}
-            whileHover={{ scale: 1.02 }}
+            whileHover={{ scale: 1.02, x: 5 }}
             whileTap={{ scale: 0.98 }}
           >
-            <div className="flex justify-between items-center">
-              <span className="font-medium">{category.name}</span>
-              <span className="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-full">
-                {category.postCount}
-              </span>
+            <div className="p-4">
+              <div className="flex justify-between items-center">
+                <span className="font-medium">{category.name}</span>
+                <motion.span 
+                  className="text-xs glass-card px-2 py-1 rounded-full"
+                  whileHover={{ scale: 1.1 }}
+                >
+                  {category.postCount}
+                </motion.span>
+              </div>
+              <p className="text-sm mt-2 text-gray-400">
+                {category.description}
+              </p>
             </div>
-            <p className="text-sm mt-1 text-gray-500 dark:text-gray-400">
-              {category.description}
-            </p>
           </motion.button>
         ))}
       </div>
