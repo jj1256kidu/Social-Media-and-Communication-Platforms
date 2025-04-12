@@ -3,94 +3,315 @@
 @tailwind utilities;
 
 :root {
-  --primary: #2563eb;
-  --primary-light: #3b82f6;
-  --primary-dark: #1d4ed8;
-  --background: #f8fafc;
-  --surface: #ffffff;
-  --text: #1e293b;
-  --text-light: #64748b;
-  --border: #e2e8f0;
+  --base-dark: #0F1117;
+  --base-darker: #1C1F26;
+  --base-darkest: #23272F;
+  --accent-blue: #00C6FF;
+  --accent-violet: #8F00FF;
+  --accent-green: #39FF14;
+  --primary: var(--accent-blue);
+  --primary-light: #33D8FF;
+  --primary-dark: #00A3CC;
+  --background: var(--base-dark);
+  --surface: var(--base-darker);
+  --text: #E2E8F0;
+  --text-light: #94A3B8;
+  --border: var(--base-darkest);
 }
 
 .dark {
-  --primary: #3b82f6;
-  --primary-light: #60a5fa;
-  --primary-dark: #2563eb;
-  --background: #0f172a;
-  --surface: #1e293b;
-  --text: #f8fafc;
-  --text-light: #94a3b8;
+  --primary: var(--accent-violet);
+  --primary-light: #A333FF;
+  --primary-dark: #7A00CC;
+  --background: var(--base-darkest);
+  --surface: var(--base-darker);
+  --text: #F8FAFC;
+  --text-light: #CBD5E1;
   --border: #334155;
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 body {
   @apply bg-background text-text;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', 'Space Grotesk', sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Modern Card */
+/* Glassmorphic Card */
 .modern-card {
-  @apply bg-surface rounded-xl shadow-sm border border-border;
+  @apply bg-surface/50 backdrop-blur-lg rounded-2xl border border-border/50;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
 .modern-card:hover {
-  @apply shadow-md;
+  @apply shadow-lg;
   transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 198, 255, 0.1);
 }
 
-/* Minimal Button */
+/* Neomorphic Button */
 .minimal-button {
-  @apply px-4 py-2 rounded-lg font-medium transition-all duration-300
-         bg-primary text-white hover:bg-primary-light
+  @apply px-4 py-2 rounded-xl font-medium transition-all duration-300
+         bg-gradient-to-r from-primary to-primary-light text-white
+         shadow-lg hover:shadow-xl hover:shadow-primary/20
          focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
 }
 
-/* Subtle Input */
+/* Glassmorphic Input */
 .subtle-input {
-  @apply w-full px-4 py-2 rounded-lg border border-border
+  @apply w-full px-4 py-2 rounded-xl border border-border/50
          focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
-         transition-all duration-300 bg-surface text-text;
+         transition-all duration-300 bg-surface/30 backdrop-blur-sm text-text;
 }
 
 /* Modern Navigation */
 .modern-nav {
-  @apply bg-surface/80 backdrop-blur-md border-b border-border;
+  @apply bg-surface/30 backdrop-blur-lg border-b border-border/50;
 }
 
-/* Category Pill */
+/* Category Pill with Glow */
 .category-pill {
   @apply px-3 py-1 rounded-full text-sm font-medium
          bg-primary/10 text-primary hover:bg-primary/20
-         transition-all duration-300 flex items-center;
+         transition-all duration-300 flex items-center
+         hover:shadow-[0_0_15px_rgba(0,198,255,0.3)];
 }
 
-/* Vote Button */
+/* Animated Vote Button */
 .vote-button {
-  @apply p-2 rounded-lg hover:bg-primary/10
-         transition-all duration-300;
+  @apply p-2 rounded-xl hover:bg-primary/10
+         transition-all duration-300 relative overflow-hidden;
 }
 
-.vote-button:hover {
-  transform: scale(1.1);
+.vote-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-/* Comment Section */
-.comment-section {
-  @apply mt-4 pt-4 border-t border-border;
+.vote-button:hover::before {
+  opacity: 0.1;
 }
 
-/* Avatar */
-.avatar {
-  @apply w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center
-         text-primary font-medium;
+.vote-button:active {
+  transform: scale(0.95);
 }
 
-/* Loading Skeleton */
+/* Particle Background */
+.particle-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Cursor Trail */
+.cursor-trail {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  z-index: 9999;
+}
+
+/* Confetti Effect */
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  background: var(--primary);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Typewriter Effect */
+.typewriter {
+  overflow: hidden;
+  border-right: 2px solid var(--primary);
+  white-space: nowrap;
+  animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: var(--primary) }
+}
+
+/* Live Badge Animation */
+.live-badge {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(57, 255, 20, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(57, 255, 20, 0);
+  }
+}
+
+/* Thread Card Animation */
+.thread-card {
+  @apply transition-all duration-300;
+}
+
+.thread-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 198, 255, 0.15);
+}
+
+/* Dark Mode Toggle Animation */
+.dark-mode-toggle {
+  @apply relative inline-flex items-center h-6 rounded-full w-11
+         transition-colors focus:outline-none focus:ring-2 focus:ring-primary;
+}
+
+.dark-mode-toggle::before {
+  content: '';
+  @apply absolute left-0.5 top-0.5 bg-white rounded-full h-5 w-5
+         transition-transform duration-300;
+}
+
+.dark-mode-toggle.dark::before {
+  transform: translateX(1.25rem);
+}
+
+/* Comment Animation */
+.comment-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.comment-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Upvote Animation */
+.upvote-animation {
+  animation: upvote 0.5s ease-out;
+}
+
+@keyframes upvote {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Number Increment Animation */
+.number-increment {
+  animation: increment 0.5s ease-out;
+}
+
+@keyframes increment {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-20px);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+}
+
+/* Category Highlight Animation */
+.category-highlight {
+  position: relative;
+}
+
+.category-highlight::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary);
+  transition: width 0.3s ease;
+}
+
+.category-highlight:hover::after {
+  width: 100%;
+}
+
+/* Modal Animation */
+.modal-enter {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.modal-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.modal-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.modal-exit-active {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Loading Skeleton Animation */
 .skeleton {
-  @apply bg-border animate-pulse rounded-lg;
+  @apply bg-surface/50 rounded-xl;
+  background: linear-gradient(
+    90deg,
+    var(--surface) 25%,
+    var(--primary) 50%,
+    var(--surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* Custom Scrollbar */
@@ -104,27 +325,11 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  @apply bg-border rounded-full;
+  @apply bg-border/50 rounded-full;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
   @apply bg-primary/30 rounded-full hover:bg-primary/50;
-}
-
-/* Animation Classes */
-.fade-in {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* Utility Classes */
@@ -140,13 +345,13 @@ body {
   transform: translateY(-2px);
 }
 
-/* Login Section */
+/* Glassmorphic Login */
 .login-container {
   @apply relative;
 }
 
 .login-glow {
-  @apply absolute inset-0 bg-gradient-to-r from-primary to-primary-light rounded-lg blur opacity-20;
+  @apply absolute inset-0 bg-gradient-to-r from-primary to-primary-light rounded-xl blur opacity-20;
   transition: opacity 0.3s ease;
 }
 
@@ -155,13 +360,13 @@ body {
 }
 
 .login-input {
-  @apply px-4 py-2 bg-surface/80 backdrop-blur-sm rounded-lg border border-border
+  @apply px-4 py-2 bg-surface/30 backdrop-blur-sm rounded-xl border border-border/50
          focus:outline-none focus:ring-2 focus:ring-primary
          transition-all duration-300 w-48 text-text;
 }
 
 .login-button {
-  @apply ml-2 px-4 py-2 rounded-lg font-medium transition-all duration-300
+  @apply ml-2 px-4 py-2 rounded-xl font-medium transition-all duration-300
          bg-gradient-to-r from-primary to-primary-light text-white
          shadow-lg shadow-primary/20 hover:shadow-primary/30;
 }
@@ -224,21 +429,6 @@ body {
 }
 
 /* Voice Input Animation */
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.7;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
 .voice-active {
   animation: pulse 1.5s infinite;
 }
