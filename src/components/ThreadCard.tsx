@@ -41,42 +41,43 @@ const ThreadCard: React.FC<ThreadCardProps> = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 p-6 mb-4"
+      className="glass-card rounded-xl p-6 mb-6 card-hover neon-gradient"
     >
       <div className="flex items-start space-x-4">
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center space-y-2">
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={onUpvote}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+            className="glass-button p-2 rounded-full hover:text-cyan-400"
           >
-            <ArrowUpIcon className="h-5 w-5 text-gray-500 hover:text-green-500" />
+            <ArrowUpIcon className="h-5 w-5" />
           </motion.button>
-          <span className="text-sm font-medium">{upvotes}</span>
+          <span className="cyber-text text-lg">{upvotes}</span>
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={onDownvote}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+            className="glass-button p-2 rounded-full hover:text-purple-400"
           >
-            <ArrowDownIcon className="h-5 w-5 text-gray-500 hover:text-red-500" />
+            <ArrowDownIcon className="h-5 w-5" />
           </motion.button>
         </div>
         
         <div className="flex-1">
-          <div className="flex items-center space-x-2 mb-2">
-            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-              Posted by {author} in {category}
+          <div className="flex items-center space-x-2 mb-3">
+            <span className="text-sm text-cyan-400">
+              Posted by {author}
             </span>
-            <span className="text-xs text-gray-400">{createdAt}</span>
+            <span className="text-sm text-purple-400">in {category}</span>
+            <span className="text-sm text-gray-400">{createdAt}</span>
           </div>
           
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          <h3 className="text-xl font-bold cyber-text mb-3 hover-glow">
             {title}
           </h3>
           
-          <p className="text-gray-600 dark:text-gray-300 mb-4">
+          <p className="text-gray-300 mb-4">
             {content}
           </p>
 
@@ -84,11 +85,11 @@ const ThreadCard: React.FC<ThreadCardProps> = ({
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
-              className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mb-4"
+              className="glass-card rounded-lg mb-4 p-4 border border-cyan-400/30"
             >
               <div className="flex items-start space-x-2">
-                <SparklesIcon className="h-5 w-5 text-blue-500 flex-shrink-0" />
-                <p className="text-sm text-blue-700 dark:text-blue-300">
+                <SparklesIcon className="h-5 w-5 text-cyan-400" />
+                <p className="text-sm text-cyan-300">
                   {aiSummary}
                 </p>
               </div>
@@ -96,9 +97,9 @@ const ThreadCard: React.FC<ThreadCardProps> = ({
           )}
           
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-1">
-              <ChatBubbleLeftIcon className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-500">{comments} comments</span>
+            <div className="flex items-center space-x-2">
+              <ChatBubbleLeftIcon className="h-4 w-4 text-purple-400" />
+              <span className="text-sm text-purple-300">{comments} comments</span>
             </div>
 
             <div className="relative">
@@ -106,9 +107,9 @@ const ThreadCard: React.FC<ThreadCardProps> = ({
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setShowEmojis(!showEmojis)}
-                className="flex items-center space-x-1 text-gray-500 hover:text-blue-500"
+                className="glass-button flex items-center space-x-1"
               >
-                <FaceSmileIcon className="h-4 w-4" />
+                <FaceSmileIcon className="h-4 w-4 text-cyan-400" />
                 <span className="text-sm">{selectedEmoji || 'React'}</span>
               </motion.button>
 
@@ -116,7 +117,7 @@ const ThreadCard: React.FC<ThreadCardProps> = ({
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="absolute top-2 left-0 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 flex space-x-2"
+                  className="absolute top-full mt-2 left-0 glass-card rounded-lg shadow-xl p-2 flex space-x-2 z-10"
                 >
                   {emojis.map((emoji) => (
                     <motion.button
@@ -127,7 +128,7 @@ const ThreadCard: React.FC<ThreadCardProps> = ({
                         setSelectedEmoji(emoji);
                         setShowEmojis(false);
                       }}
-                      className="text-xl"
+                      className="text-xl hover-glow"
                     >
                       {emoji}
                     </motion.button>
@@ -140,9 +141,9 @@ const ThreadCard: React.FC<ThreadCardProps> = ({
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowSummary(!showSummary)}
-              className="flex items-center space-x-1 text-gray-500 hover:text-blue-500"
+              className="glass-button flex items-center space-x-1"
             >
-              <SparklesIcon className="h-4 w-4" />
+              <SparklesIcon className="h-4 w-4 text-purple-400" />
               <span className="text-sm">AI Summary</span>
             </motion.button>
           </div>
@@ -151,9 +152,9 @@ const ThreadCard: React.FC<ThreadCardProps> = ({
             {tags.map((tag) => (
               <span
                 key={tag}
-                className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded-full"
+                className="glass-button text-xs py-1 hover:text-cyan-400"
               >
-                {tag}
+                #{tag}
               </span>
             ))}
           </div>
