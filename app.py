@@ -363,19 +363,31 @@ st.markdown("""
 
 # Login Page
 if not st.session_state.current_user:
+    # Hide Streamlit's default elements
     st.markdown("""
-        <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-            <div style="width: 800px; display: flex; gap: 40px; align-items: center;">
+        <style>
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        .stApp > header {visibility: hidden;}
+        .stApp {
+            margin-top: -80px;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+        <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;">
+            <div style="width: 100%; max-width: 900px; display: flex; gap: 40px; align-items: center;">
                 <div class="login-container" style="flex: 1;">
                     <div class="brand-area">
                         <div class="brand-name">ForumHub</div>
                         <div class="tagline">Where Ideas Thread Together</div>
                     </div>
-                    <div style="width: 100%; height: 300px;">
+                    <div style="width: 100%; height: 200px;">
                     """, unsafe_allow_html=True)
     
     if lottie_wave:
-        st_lottie(lottie_wave, height=300, key="wave")
+        st_lottie(lottie_wave, height=200, key="wave")
     
     st.markdown("""
                     </div>
@@ -385,7 +397,6 @@ if not st.session_state.current_user:
     """, unsafe_allow_html=True)
     
     with st.form("login_form", clear_on_submit=True):
-        st.markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
         username = st.text_input("Username", placeholder="Enter your username")
         password = st.text_input("Password", type="password", placeholder="Enter your password")
         cols = st.columns([3, 1])
@@ -409,9 +420,9 @@ if not st.session_state.current_user:
                 }
                 st.success("Login successful!")
                 if lottie_login_success:
-                    st_lottie(lottie_login_success, height=150, key="login_success")
+                    st_lottie(lottie_login_success, height=100, key="login_success")
                 st.balloons()
-                time.sleep(2)
+                time.sleep(1)
                 st.experimental_rerun()
             else:
                 st.error("Invalid credentials")
