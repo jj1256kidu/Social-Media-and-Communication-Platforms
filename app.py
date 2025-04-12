@@ -137,6 +137,104 @@ def trigger_confetti():
         </script>
     """, height=0)
 
+# Add modal component
+def add_modal_component():
+    components.html("""
+        <div id="newThreadModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h3>📝 Create a New Thread</h3>
+                <input id="threadTitle" type="text" placeholder="Thread Title" style="width:100%; padding:10px; margin:10px 0;" />
+                <textarea id="threadContent" placeholder="Your content here..." style="width:100%; height:100px; padding:10px;"></textarea>
+                <button onclick="postThread()" style="margin-top:10px; padding:10px 20px; background:#2f54eb; color:white; border:none; border-radius:8px; cursor:pointer;">Post</button>
+            </div>
+        </div>
+        <script>
+            function openModal() {
+                document.getElementById("newThreadModal").style.display = "block";
+            }
+            function closeModal() {
+                document.getElementById("newThreadModal").style.display = "none";
+            }
+            function postThread() {
+                const title = document.getElementById("threadTitle").value;
+                const content = document.getElementById("threadContent").value;
+                if (title && content) {
+                    // Trigger Streamlit to create new post
+                    const event = new CustomEvent('create_thread', { 
+                        detail: { title, content }
+                    });
+                    document.dispatchEvent(event);
+                    closeModal();
+                }
+            }
+            // Close modal when clicking outside
+            window.onclick = function(event) {
+                const modal = document.getElementById("newThreadModal");
+                if (event.target == modal) {
+                    closeModal();
+                }
+            }
+        </script>
+        <style>
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1001;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgba(0, 0, 0, 0.4);
+                backdrop-filter: blur(5px);
+            }
+            .modal-content {
+                background-color: #1E1E2E;
+                margin: 10% auto;
+                padding: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 15px;
+                width: 80%;
+                max-width: 500px;
+                animation: slideIn 0.3s ease;
+            }
+            .close {
+                color: #aaa;
+                float: right;
+                font-size: 28px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+            .close:hover {
+                color: #fff;
+            }
+            @keyframes slideIn {
+                from { transform: translateY(-50px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            #threadTitle, #threadContent {
+                background: rgba(45, 45, 61, 0.5);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                color: white;
+                font-family: 'Poppins', sans-serif;
+            }
+            #threadTitle:focus, #threadContent:focus {
+                outline: none;
+                border-color: #2f54eb;
+                box-shadow: 0 0 10px rgba(47, 84, 235, 0.3);
+            }
+            button {
+                transition: all 0.3s ease;
+            }
+            button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(47, 84, 235, 0.3);
+            }
+        </style>
+    """, height=0)
+
 # Function to handle category selection
 def handle_category_selection(category_id):
     st.session_state.selected_category = category_id
@@ -848,102 +946,4 @@ elif st.session_state.current_user:
                 // You can add additional handling here if needed
             });
         </script>
-    """, height=0)
-
-# Add modal component
-def add_modal_component():
-    components.html("""
-        <div id="newThreadModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeModal()">&times;</span>
-                <h3>📝 Create a New Thread</h3>
-                <input id="threadTitle" type="text" placeholder="Thread Title" style="width:100%; padding:10px; margin:10px 0;" />
-                <textarea id="threadContent" placeholder="Your content here..." style="width:100%; height:100px; padding:10px;"></textarea>
-                <button onclick="postThread()" style="margin-top:10px; padding:10px 20px; background:#2f54eb; color:white; border:none; border-radius:8px; cursor:pointer;">Post</button>
-            </div>
-        </div>
-        <script>
-            function openModal() {
-                document.getElementById("newThreadModal").style.display = "block";
-            }
-            function closeModal() {
-                document.getElementById("newThreadModal").style.display = "none";
-            }
-            function postThread() {
-                const title = document.getElementById("threadTitle").value;
-                const content = document.getElementById("threadContent").value;
-                if (title && content) {
-                    // Trigger Streamlit to create new post
-                    const event = new CustomEvent('create_thread', { 
-                        detail: { title, content }
-                    });
-                    document.dispatchEvent(event);
-                    closeModal();
-                }
-            }
-            // Close modal when clicking outside
-            window.onclick = function(event) {
-                const modal = document.getElementById("newThreadModal");
-                if (event.target == modal) {
-                    closeModal();
-                }
-            }
-        </script>
-        <style>
-            .modal {
-                display: none;
-                position: fixed;
-                z-index: 1001;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                overflow: auto;
-                background-color: rgba(0, 0, 0, 0.4);
-                backdrop-filter: blur(5px);
-            }
-            .modal-content {
-                background-color: #1E1E2E;
-                margin: 10% auto;
-                padding: 20px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 15px;
-                width: 80%;
-                max-width: 500px;
-                animation: slideIn 0.3s ease;
-            }
-            .close {
-                color: #aaa;
-                float: right;
-                font-size: 28px;
-                font-weight: bold;
-                cursor: pointer;
-            }
-            .close:hover {
-                color: #fff;
-            }
-            @keyframes slideIn {
-                from { transform: translateY(-50px); opacity: 0; }
-                to { transform: translateY(0); opacity: 1; }
-            }
-            #threadTitle, #threadContent {
-                background: rgba(45, 45, 61, 0.5);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 10px;
-                color: white;
-                font-family: 'Poppins', sans-serif;
-            }
-            #threadTitle:focus, #threadContent:focus {
-                outline: none;
-                border-color: #2f54eb;
-                box-shadow: 0 0 10px rgba(47, 84, 235, 0.3);
-            }
-            button {
-                transition: all 0.3s ease;
-            }
-            button:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(47, 84, 235, 0.3);
-            }
-        </style>
     """, height=0) 
