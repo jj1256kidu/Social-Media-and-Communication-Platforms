@@ -281,8 +281,8 @@ def add_gradient_overlay():
         </style>
     """, height=0)
 
-# Add modern theme components
-def add_modern_theme():
+# Add modern UI components
+def add_modern_ui():
     components.html("""
         <style>
             /* Modern Color Palette */
@@ -290,37 +290,37 @@ def add_modern_theme():
                 --primary: #6366f1;
                 --secondary: #8b5cf6;
                 --accent: #ec4899;
-                --background: #0f172a;
-                --surface: #1e293b;
-                --text: #f8fafc;
+                --background: #f8fafc;
+                --surface: #ffffff;
+                --text: #1e293b;
                 --muted: #94a3b8;
             }
 
             /* Modern App Container */
             .stApp {
-                background: linear-gradient(135deg, var(--background) 0%, #1e1b4b 100%);
+                background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
                 min-height: 100vh;
                 padding: 20px;
             }
 
             /* Modern Navigation */
             .st-emotion-cache-1v0mbdj {
-                background: rgba(30, 41, 59, 0.8) !important;
+                background: rgba(255, 255, 255, 0.8) !important;
                 backdrop-filter: blur(10px);
                 border-radius: 20px;
                 padding: 15px;
                 margin-bottom: 20px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(0, 0, 0, 0.1);
             }
 
             /* Modern Thread Cards */
             .thread-card {
-                background: rgba(30, 41, 59, 0.8);
+                background: rgba(255, 255, 255, 0.8);
                 backdrop-filter: blur(10px);
                 border-radius: 20px;
                 padding: 25px;
                 margin-bottom: 20px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(0, 0, 0, 0.1);
                 transition: all 0.3s ease;
                 animation: fadeIn 0.5s ease;
             }
@@ -350,10 +350,10 @@ def add_modern_theme():
             /* Modern Input Fields */
             .stTextInput>div>div>input,
             .stTextArea>div>div>textarea {
-                background: rgba(30, 41, 59, 0.8) !important;
-                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                background: rgba(255, 255, 255, 0.8) !important;
+                border: 1px solid rgba(0, 0, 0, 0.1) !important;
                 border-radius: 12px !important;
-                color: white !important;
+                color: var(--text) !important;
                 padding: 12px !important;
                 transition: all 0.3s ease !important;
             }
@@ -366,11 +366,11 @@ def add_modern_theme():
 
             /* Modern Category Buttons */
             .category-btn {
-                background: rgba(30, 41, 59, 0.8);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                background: rgba(255, 255, 255, 0.8);
+                border: 1px solid rgba(0, 0, 0, 0.1);
                 border-radius: 12px;
                 padding: 10px 20px;
-                color: white;
+                color: var(--text);
                 transition: all 0.3s ease;
             }
 
@@ -406,7 +406,7 @@ def add_modern_theme():
 
             /* Modern Comment Section */
             .comment-section {
-                background: rgba(30, 41, 59, 0.8);
+                background: rgba(255, 255, 255, 0.8);
                 backdrop-filter: blur(10px);
                 border-radius: 12px;
                 padding: 15px;
@@ -414,11 +414,11 @@ def add_modern_theme():
             }
 
             .comment {
-                background: rgba(30, 41, 59, 0.8);
+                background: rgba(255, 255, 255, 0.8);
                 border-radius: 12px;
                 padding: 12px;
                 margin: 10px 0;
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(0, 0, 0, 0.1);
                 animation: fadeIn 0.3s ease;
             }
 
@@ -436,21 +436,21 @@ def add_modern_theme():
 
             /* Modern Profile Section */
             .profile-section {
-                background: rgba(30, 41, 59, 0.8);
+                background: rgba(255, 255, 255, 0.8);
                 backdrop-filter: blur(10px);
                 border-radius: 20px;
                 padding: 25px;
                 margin-bottom: 20px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(0, 0, 0, 0.1);
             }
 
             /* Modern Search Bar */
             .search-bar {
-                background: rgba(30, 41, 59, 0.8);
+                background: rgba(255, 255, 255, 0.8);
                 border-radius: 12px;
                 padding: 12px 20px;
                 margin-bottom: 20px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(0, 0, 0, 0.1);
             }
 
             /* Modern Particles Background */
@@ -472,17 +472,17 @@ def add_modern_theme():
             }
 
             .theme-switcher select {
-                background: rgba(30, 41, 59, 0.8);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                background: rgba(255, 255, 255, 0.8);
+                border: 1px solid rgba(0, 0, 0, 0.1);
                 border-radius: 12px;
                 padding: 8px 15px;
-                color: white;
+                color: var(--text);
                 cursor: pointer;
                 transition: all 0.3s ease;
             }
 
             .theme-switcher select:hover {
-                background: rgba(30, 41, 59, 0.9);
+                background: rgba(255, 255, 255, 0.9);
             }
 
             /* Modern Loading States */
@@ -492,7 +492,7 @@ def add_modern_theme():
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(15, 23, 42, 0.8);
+                background: rgba(255, 255, 255, 0.8);
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -519,8 +519,8 @@ def add_modern_theme():
                 top: 20px;
                 right: 20px;
                 padding: 15px 25px;
-                background: rgba(30, 41, 59, 0.9);
-                color: white;
+                background: rgba(255, 255, 255, 0.9);
+                color: var(--text);
                 border-radius: 12px;
                 box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
                 animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
@@ -546,8 +546,8 @@ def add_modern_theme():
             .tooltip .tooltip-text {
                 visibility: hidden;
                 width: 120px;
-                background-color: rgba(30, 41, 59, 0.9);
-                color: white;
+                background-color: rgba(255, 255, 255, 0.9);
+                color: var(--text);
                 text-align: center;
                 border-radius: 6px;
                 padding: 5px;
@@ -568,7 +568,7 @@ def add_modern_theme():
             /* Modern Progress Bar */
             .progress-bar {
                 height: 4px;
-                background: rgba(255, 255, 255, 0.1);
+                background: rgba(0, 0, 0, 0.1);
                 border-radius: 2px;
                 overflow: hidden;
                 margin: 10px 0;
@@ -629,8 +629,8 @@ def add_modern_theme():
         </style>
     """, height=0)
 
-# Add modern theme
-add_modern_theme()
+# Add modern UI
+add_modern_ui()
 
 # Update theme switcher with modern themes
 def update_theme_switcher():
@@ -638,7 +638,6 @@ def update_theme_switcher():
         <div class="theme-switcher">
             <select onchange="changeTheme(this.value)">
                 <option value="modern">🎨 Modern</option>
-                <option value="dark">🌙 Dark</option>
                 <option value="light">☀️ Light</option>
                 <option value="gradient">🌈 Gradient</option>
             </select>
@@ -647,11 +646,9 @@ def update_theme_switcher():
             function changeTheme(value) {
                 let body = document.querySelector('.stApp');
                 if (value === 'modern') {
-                    body.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)';
-                } else if (value === 'dark') {
-                    body.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
-                } else if (value === 'light') {
                     body.style.background = 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)';
+                } else if (value === 'light') {
+                    body.style.background = 'linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)';
                 } else if (value === 'gradient') {
                     body.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)';
                 }
@@ -663,15 +660,6 @@ def update_theme_switcher():
 
 # Update theme switcher
 update_theme_switcher()
-
-# Add confetti component
-def trigger_confetti():
-    components.html("""
-        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-        <script>
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-        </script>
-    """, height=0)
 
 # Add enhanced thread creation modal
 def add_enhanced_thread_modal():
@@ -722,7 +710,7 @@ def add_enhanced_thread_modal():
                 animation: fadeIn 0.3s ease;
             }
             .modal-content {
-                background: #1E1E2E;
+                background: #ffffff;
                 margin: 10% auto;
                 padding: 30px;
                 border-radius: 20px;
@@ -737,7 +725,7 @@ def add_enhanced_thread_modal():
             .form-group label {
                 display: block;
                 margin-bottom: 8px;
-                color: #fff;
+                color: var(--text);
                 font-weight: 500;
             }
             .form-group input,
@@ -745,10 +733,10 @@ def add_enhanced_thread_modal():
             .form-group select {
                 width: 100%;
                 padding: 12px;
-                background: rgba(45, 45, 61, 0.5);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                background: rgba(255, 255, 255, 0.8);
+                border: 1px solid rgba(0, 0, 0, 0.1);
                 border-radius: 10px;
-                color: white;
+                color: var(--text);
                 font-size: 16px;
                 transition: all 0.3s ease;
             }
@@ -759,7 +747,7 @@ def add_enhanced_thread_modal():
             .post-button {
                 width: 100%;
                 padding: 15px;
-                background: linear-gradient(45deg, #2f54eb, #1a365d);
+                background: linear-gradient(45deg, var(--primary), var(--secondary));
                 border: none;
                 border-radius: 10px;
                 color: white;
@@ -774,7 +762,7 @@ def add_enhanced_thread_modal():
             }
             .post-button:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(47, 84, 235, 0.3);
+                box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
             }
             .post-button:active {
                 transform: translateY(0);
@@ -792,12 +780,12 @@ def add_enhanced_thread_modal():
                 top: 20px;
                 right: 20px;
                 font-size: 24px;
-                color: #fff;
+                color: var(--text);
                 cursor: pointer;
                 transition: all 0.3s ease;
             }
             .close:hover {
-                color: #2f54eb;
+                color: var(--primary);
                 transform: rotate(90deg);
             }
         </style>
@@ -884,6 +872,21 @@ def add_enhanced_thread_modal():
             }
         </script>
     """, height=0)
+
+# Add enhanced thread creation modal
+add_enhanced_thread_modal()
+
+# Add floating create button with tooltip
+components.html("""
+    <div class="tooltip" style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
+        <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_tll0j4bb.json" 
+                      background="transparent" speed="1" 
+                      style="width: 60px; height: 60px; cursor: pointer;" 
+                      onclick="showLoading(); openModal()" 
+                      loop autoplay></lottie-player>
+        <span class="tooltip-text">Create New Thread</span>
+    </div>
+""", height=0)
 
 # Function to handle category selection
 def handle_category_selection(category_id):
@@ -1495,7 +1498,6 @@ for post in filtered_posts:
         with col1:
             if st.button("👍 Upvote", key=f"up_{post['id']}"):
                 handle_upvote(post['id'])
-                trigger_confetti()
                 st.rerun()
         with col2:
             if st.button("💬 Comment", key=f"comment_{post['id']}"):
@@ -1510,18 +1512,6 @@ for post in filtered_posts:
                             <strong>{comment['author']}</strong>: {comment['content']}
                         </div>
                     """, unsafe_allow_html=True)
-
-# Add floating create button with tooltip
-components.html("""
-    <div class="tooltip" style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
-        <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_tll0j4bb.json" 
-                      background="transparent" speed="1" 
-                      style="width: 60px; height: 60px; cursor: pointer;" 
-                      onclick="showLoading(); openModal()" 
-                      loop autoplay></lottie-player>
-        <span class="tooltip-text">Create New Thread</span>
-    </div>
-""", height=0)
 
 # Handle thread creation with loading state
 if 'create_thread' in st.session_state:
