@@ -95,11 +95,180 @@ if 'selected_category' not in st.session_state:
 # Add particles.js background
 def add_particles_background():
     components.html("""
-        <div id="particles-js"></div>
-        <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+        <div id="particles-js" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></div>
+        <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
         <script>
-            particlesJS.load('particles-js', 'https://raw.githubusercontent.com/VincentGarreau/particles.js/master/demo/particles.json');
+            particlesJS('particles-js', {
+                "particles": {
+                    "number": {
+                        "value": 80,
+                        "density": {
+                            "enable": true,
+                            "value_area": 800
+                        }
+                    },
+                    "color": {
+                        "value": "#00C6FF"
+                    },
+                    "shape": {
+                        "type": "circle",
+                        "stroke": {
+                            "width": 0,
+                            "color": "#000000"
+                        },
+                        "polygon": {
+                            "nb_sides": 5
+                        }
+                    },
+                    "opacity": {
+                        "value": 0.5,
+                        "random": false,
+                        "anim": {
+                            "enable": false,
+                            "speed": 1,
+                            "opacity_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "size": {
+                        "value": 3,
+                        "random": true,
+                        "anim": {
+                            "enable": false,
+                            "speed": 40,
+                            "size_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#00C6FF",
+                        "opacity": 0.4,
+                        "width": 1
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 2,
+                        "direction": "none",
+                        "random": false,
+                        "straight": false,
+                        "out_mode": "out",
+                        "bounce": false,
+                        "attract": {
+                            "enable": false,
+                            "rotateX": 600,
+                            "rotateY": 1200
+                        }
+                    }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "grab"
+                        },
+                        "onclick": {
+                            "enable": true,
+                            "mode": "push"
+                        },
+                        "resize": true
+                    },
+                    "modes": {
+                        "grab": {
+                            "distance": 140,
+                            "line_linked": {
+                                "opacity": 1
+                            }
+                        },
+                        "bubble": {
+                            "distance": 400,
+                            "size": 40,
+                            "duration": 2,
+                            "opacity": 8,
+                            "speed": 3
+                        },
+                        "repulse": {
+                            "distance": 200,
+                            "duration": 0.4
+                        },
+                        "push": {
+                            "particles_nb": 4
+                        },
+                        "remove": {
+                            "particles_nb": 2
+                        }
+                    }
+                },
+                "retina_detect": true
+            });
         </script>
+    """, height=0)
+
+# Add floating elements
+def add_floating_elements():
+    components.html("""
+        <div class="floating-elements">
+            <div class="floating-element" style="top: 20%; left: 10%; animation-delay: 0s;"></div>
+            <div class="floating-element" style="top: 40%; left: 20%; animation-delay: 2s;"></div>
+            <div class="floating-element" style="top: 60%; left: 30%; animation-delay: 4s;"></div>
+            <div class="floating-element" style="top: 80%; left: 40%; animation-delay: 6s;"></div>
+            <div class="floating-element" style="top: 30%; left: 60%; animation-delay: 8s;"></div>
+            <div class="floating-element" style="top: 50%; left: 70%; animation-delay: 10s;"></div>
+            <div class="floating-element" style="top: 70%; left: 80%; animation-delay: 12s;"></div>
+        </div>
+        <style>
+            .floating-elements {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: -1;
+            }
+            .floating-element {
+                position: absolute;
+                width: 100px;
+                height: 100px;
+                background: radial-gradient(circle, rgba(0,198,255,0.2) 0%, rgba(0,198,255,0) 70%);
+                border-radius: 50%;
+                animation: float 15s infinite ease-in-out;
+            }
+            @keyframes float {
+                0% {
+                    transform: translateY(0) rotate(0deg);
+                    opacity: 0.5;
+                }
+                50% {
+                    transform: translateY(-100px) rotate(180deg);
+                    opacity: 0.8;
+                }
+                100% {
+                    transform: translateY(0) rotate(360deg);
+                    opacity: 0.5;
+                }
+            }
+        </style>
+    """, height=0)
+
+# Add gradient overlay
+def add_gradient_overlay():
+    components.html("""
+        <div class="gradient-overlay"></div>
+        <style>
+            .gradient-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(45deg, rgba(15,17,23,0.8) 0%, rgba(30,30,46,0.8) 100%);
+                z-index: -1;
+                pointer-events: none;
+            }
+        </style>
     """, height=0)
 
 # Add theme switcher component
@@ -739,6 +908,33 @@ st.markdown("""
     .comment-section {
         animation: fadeIn 0.5s ease-out;
     }
+    .main .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        background: rgba(30, 30, 46, 0.5);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        margin: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .thread-card {
+        background: rgba(30, 30, 46, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    .thread-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 198, 255, 0.2);
+        border: 1px solid rgba(0, 198, 255, 0.3);
+    }
+    .stButton>button {
+        background: linear-gradient(45deg, #00C6FF, #0072FF);
+        border: none;
+        color: white;
+        font-weight: 600;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -946,4 +1142,278 @@ elif st.session_state.current_user:
                 // You can add additional handling here if needed
             });
         </script>
-    """, height=0) 
+    """, height=0)
+
+# Add enhanced UI components
+def add_enhanced_ui():
+    components.html("""
+        <style>
+            /* Enhanced App Container */
+            .stApp {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                min-height: 100vh;
+                padding: 20px;
+            }
+
+            /* Modern Navigation Bar */
+            .st-emotion-cache-1v0mbdj {
+                background: rgba(255, 255, 255, 0.1) !important;
+                backdrop-filter: blur(10px);
+                border-radius: 15px;
+                padding: 15px;
+                margin-bottom: 20px;
+                box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            }
+
+            /* Enhanced Thread Cards */
+            .thread-card {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 15px;
+                padding: 20px;
+                margin-bottom: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                transition: all 0.3s ease;
+                animation: fadeIn 0.5s ease;
+            }
+
+            .thread-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+                background: rgba(255, 255, 255, 0.08);
+            }
+
+            /* Modern Buttons */
+            .stButton>button {
+                background: linear-gradient(45deg, #2f54eb, #1a365d) !important;
+                border: none !important;
+                border-radius: 10px !important;
+                padding: 10px 20px !important;
+                color: white !important;
+                font-weight: 600 !important;
+                transition: all 0.3s ease !important;
+            }
+
+            .stButton>button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(47, 84, 235, 0.3);
+            }
+
+            /* Enhanced Input Fields */
+            .stTextInput>div>div>input,
+            .stTextArea>div>div>textarea {
+                background: rgba(255, 255, 255, 0.05) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                border-radius: 10px !important;
+                color: white !important;
+                padding: 10px !important;
+            }
+
+            /* Category Buttons */
+            .category-btn {
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 20px;
+                padding: 8px 15px;
+                margin: 5px;
+                color: white;
+                transition: all 0.3s ease;
+            }
+
+            .category-btn:hover {
+                background: rgba(255, 255, 255, 0.1);
+                transform: translateY(-2px);
+            }
+
+            /* Floating Create Button */
+            .create-btn {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background: linear-gradient(45deg, #2f54eb, #1a365d);
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 24px;
+                box-shadow: 0 4px 15px rgba(47, 84, 235, 0.3);
+                cursor: pointer;
+                transition: all 0.3s ease;
+                z-index: 1000;
+            }
+
+            .create-btn:hover {
+                transform: scale(1.1) rotate(90deg);
+            }
+
+            /* Animations */
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            @keyframes float {
+                0% { transform: translateY(0px); }
+                50% { transform: translateY(-10px); }
+                100% { transform: translateY(0px); }
+            }
+
+            /* Enhanced Comment Section */
+            .comment-section {
+                background: rgba(255, 255, 255, 0.03);
+                border-radius: 10px;
+                padding: 15px;
+                margin-top: 15px;
+            }
+
+            .comment {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 10px;
+                padding: 10px;
+                margin: 10px 0;
+                animation: fadeIn 0.3s ease;
+            }
+
+            /* Profile Section */
+            .profile-section {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 15px;
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            /* Search Bar */
+            .search-bar {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 20px;
+                padding: 10px 20px;
+                margin-bottom: 20px;
+            }
+
+            /* Particles Background */
+            #particles-js {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: -1;
+            }
+        </style>
+
+        <!-- Particles.js -->
+        <div id="particles-js"></div>
+        <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+        <script>
+            particlesJS("particles-js", {
+                "particles": {
+                    "number": {
+                        "value": 80,
+                        "density": {
+                            "enable": true,
+                            "value_area": 800
+                        }
+                    },
+                    "color": {
+                        "value": "#2f54eb"
+                    },
+                    "shape": {
+                        "type": "circle",
+                        "stroke": {
+                            "width": 0,
+                            "color": "#000000"
+                        },
+                        "polygon": {
+                            "nb_sides": 5
+                        }
+                    },
+                    "opacity": {
+                        "value": 0.5,
+                        "random": false,
+                        "anim": {
+                            "enable": false,
+                            "speed": 1,
+                            "opacity_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "size": {
+                        "value": 3,
+                        "random": true,
+                        "anim": {
+                            "enable": false,
+                            "speed": 40,
+                            "size_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#2f54eb",
+                        "opacity": 0.4,
+                        "width": 1
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 2,
+                        "direction": "none",
+                        "random": false,
+                        "straight": false,
+                        "out_mode": "out",
+                        "bounce": false,
+                        "attract": {
+                            "enable": false,
+                            "rotateX": 600,
+                            "rotateY": 1200
+                        }
+                    }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "grab"
+                        },
+                        "onclick": {
+                            "enable": true,
+                            "mode": "push"
+                        },
+                        "resize": true
+                    },
+                    "modes": {
+                        "grab": {
+                            "distance": 140,
+                            "line_linked": {
+                                "opacity": 1
+                            }
+                        },
+                        "bubble": {
+                            "distance": 400,
+                            "size": 40,
+                            "duration": 2,
+                            "opacity": 8,
+                            "speed": 3
+                        },
+                        "repulse": {
+                            "distance": 200,
+                            "duration": 0.4
+                        },
+                        "push": {
+                            "particles_nb": 4
+                        },
+                        "remove": {
+                            "particles_nb": 2
+                        }
+                    }
+                },
+                "retina_detect": true
+            });
+        </script>
+    """, height=0)
+
+# In the main app section, add this after the session state initialization
+add_enhanced_ui() 
