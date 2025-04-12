@@ -1163,276 +1163,282 @@ elif st.session_state.current_user:
             st.session_state.create_thread = None
             st.rerun()
 
-# Add enhanced UI components
-def add_enhanced_ui():
+# Add enhanced UX components
+def add_enhanced_ux():
     components.html("""
         <style>
-            /* Enhanced App Container */
-            .stApp {
-                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-                min-height: 100vh;
-                padding: 20px;
-            }
-
-            /* Modern Navigation Bar */
-            .st-emotion-cache-1v0mbdj {
-                background: rgba(255, 255, 255, 0.1) !important;
-                backdrop-filter: blur(10px);
-                border-radius: 15px;
-                padding: 15px;
-                margin-bottom: 20px;
-                box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            }
-
-            /* Enhanced Thread Cards */
-            .thread-card {
-                background: rgba(255, 255, 255, 0.05);
-                border-radius: 15px;
-                padding: 20px;
-                margin-bottom: 20px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                transition: all 0.3s ease;
-                animation: fadeIn 0.5s ease;
-            }
-
-            .thread-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-                background: rgba(255, 255, 255, 0.08);
-            }
-
-            /* Modern Buttons */
-            .stButton>button {
-                background: linear-gradient(45deg, #2f54eb, #1a365d) !important;
-                border: none !important;
-                border-radius: 10px !important;
-                padding: 10px 20px !important;
-                color: white !important;
-                font-weight: 600 !important;
-                transition: all 0.3s ease !important;
-            }
-
-            .stButton>button:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(47, 84, 235, 0.3);
-            }
-
-            /* Enhanced Input Fields */
-            .stTextInput>div>div>input,
-            .stTextArea>div>div>textarea {
-                background: rgba(255, 255, 255, 0.05) !important;
-                border: 1px solid rgba(255, 255, 255, 0.1) !important;
-                border-radius: 10px !important;
-                color: white !important;
-                padding: 10px !important;
-            }
-
-            /* Category Buttons */
-            .category-btn {
-                background: rgba(255, 255, 255, 0.05);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 20px;
-                padding: 8px 15px;
-                margin: 5px;
-                color: white;
-                transition: all 0.3s ease;
-            }
-
-            .category-btn:hover {
-                background: rgba(255, 255, 255, 0.1);
-                transform: translateY(-2px);
-            }
-
-            /* Floating Create Button */
-            .create-btn {
-                position: fixed;
-                bottom: 30px;
-                right: 30px;
-                background: linear-gradient(45deg, #2f54eb, #1a365d);
-                width: 60px;
-                height: 60px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-size: 24px;
-                box-shadow: 0 4px 15px rgba(47, 84, 235, 0.3);
-                cursor: pointer;
-                transition: all 0.3s ease;
-                z-index: 1000;
-            }
-
-            .create-btn:hover {
-                transform: scale(1.1) rotate(90deg);
-            }
-
-            /* Animations */
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(20px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-
-            @keyframes float {
-                0% { transform: translateY(0px); }
-                50% { transform: translateY(-10px); }
-                100% { transform: translateY(0px); }
-            }
-
-            /* Enhanced Comment Section */
-            .comment-section {
-                background: rgba(255, 255, 255, 0.03);
-                border-radius: 10px;
-                padding: 15px;
-                margin-top: 15px;
-            }
-
-            .comment {
-                background: rgba(255, 255, 255, 0.05);
-                border-radius: 10px;
-                padding: 10px;
-                margin: 10px 0;
-                animation: fadeIn 0.3s ease;
-            }
-
-            /* Profile Section */
-            .profile-section {
-                background: rgba(255, 255, 255, 0.05);
-                border-radius: 15px;
-                padding: 20px;
-                margin-bottom: 20px;
-            }
-
-            /* Search Bar */
-            .search-bar {
-                background: rgba(255, 255, 255, 0.05);
-                border-radius: 20px;
-                padding: 10px 20px;
-                margin-bottom: 20px;
-            }
-
-            /* Particles Background */
-            #particles-js {
+            /* Loading States */
+            .loading {
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 100%;
                 height: 100%;
-                z-index: -1;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+                backdrop-filter: blur(5px);
+            }
+            .loading-spinner {
+                width: 50px;
+                height: 50px;
+                border: 5px solid #2f54eb;
+                border-radius: 50%;
+                border-top-color: transparent;
+                animation: spin 1s linear infinite;
+            }
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+
+            /* Toast Notifications */
+            .toast {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                background: rgba(30, 30, 46, 0.9);
+                color: white;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
+                z-index: 1000;
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+
+            /* Tooltips */
+            .tooltip {
+                position: relative;
+                display: inline-block;
+            }
+            .tooltip .tooltip-text {
+                visibility: hidden;
+                width: 120px;
+                background-color: rgba(30, 30, 46, 0.9);
+                color: white;
+                text-align: center;
+                border-radius: 6px;
+                padding: 5px;
+                position: absolute;
+                z-index: 1;
+                bottom: 125%;
+                left: 50%;
+                transform: translateX(-50%);
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+            .tooltip:hover .tooltip-text {
+                visibility: visible;
+                opacity: 1;
+            }
+
+            /* Progress Indicators */
+            .progress-bar {
+                height: 4px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 2px;
+                overflow: hidden;
+                margin: 10px 0;
+            }
+            .progress-bar-fill {
+                height: 100%;
+                background: linear-gradient(90deg, #2f54eb, #1a365d);
+                transition: width 0.3s ease;
+            }
+
+            /* Interactive Elements */
+            .interactive-element {
+                transition: all 0.3s ease;
+                cursor: pointer;
+            }
+            .interactive-element:hover {
+                transform: scale(1.05);
+            }
+            .interactive-element:active {
+                transform: scale(0.95);
+            }
+
+            /* Form Validation */
+            .input-error {
+                border-color: #ff4d4f !important;
+                animation: shake 0.5s;
+            }
+            .error-message {
+                color: #ff4d4f;
+                font-size: 12px;
+                margin-top: 5px;
+                animation: fadeIn 0.3s ease;
+            }
+
+            /* Empty States */
+            .empty-state {
+                text-align: center;
+                padding: 40px;
+                color: #666;
+            }
+            .empty-state-icon {
+                font-size: 48px;
+                margin-bottom: 20px;
+                animation: float 3s ease-in-out infinite;
+            }
+
+            /* Success States */
+            .success-state {
+                background: rgba(82, 196, 26, 0.1);
+                border: 1px solid rgba(82, 196, 26, 0.2);
+                border-radius: 10px;
+                padding: 15px;
+                margin: 10px 0;
+                animation: fadeIn 0.3s ease;
+            }
+
+            /* Hover Effects */
+            .hover-effect {
+                transition: all 0.3s ease;
+            }
+            .hover-effect:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+
+            /* Focus States */
+            .focus-effect:focus {
+                outline: none;
+                box-shadow: 0 0 0 2px rgba(47, 84, 235, 0.3);
+            }
+
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .container {
+                    padding: 10px;
+                }
+                .card {
+                    margin: 10px 0;
+                }
             }
         </style>
 
-        <!-- Particles.js -->
-        <div id="particles-js"></div>
-        <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
         <script>
-            particlesJS("particles-js", {
-                "particles": {
-                    "number": {
-                        "value": 80,
-                        "density": {
-                            "enable": true,
-                            "value_area": 800
-                        }
-                    },
-                    "color": {
-                        "value": "#2f54eb"
-                    },
-                    "shape": {
-                        "type": "circle",
-                        "stroke": {
-                            "width": 0,
-                            "color": "#000000"
-                        },
-                        "polygon": {
-                            "nb_sides": 5
-                        }
-                    },
-                    "opacity": {
-                        "value": 0.5,
-                        "random": false,
-                        "anim": {
-                            "enable": false,
-                            "speed": 1,
-                            "opacity_min": 0.1,
-                            "sync": false
-                        }
-                    },
-                    "size": {
-                        "value": 3,
-                        "random": true,
-                        "anim": {
-                            "enable": false,
-                            "speed": 40,
-                            "size_min": 0.1,
-                            "sync": false
-                        }
-                    },
-                    "line_linked": {
-                        "enable": true,
-                        "distance": 150,
-                        "color": "#2f54eb",
-                        "opacity": 0.4,
-                        "width": 1
-                    },
-                    "move": {
-                        "enable": true,
-                        "speed": 2,
-                        "direction": "none",
-                        "random": false,
-                        "straight": false,
-                        "out_mode": "out",
-                        "bounce": false,
-                        "attract": {
-                            "enable": false,
-                            "rotateX": 600,
-                            "rotateY": 1200
-                        }
+            // Show loading state
+            function showLoading() {
+                const loading = document.createElement('div');
+                loading.className = 'loading';
+                loading.innerHTML = '<div class="loading-spinner"></div>';
+                document.body.appendChild(loading);
+            }
+
+            // Hide loading state
+            function hideLoading() {
+                const loading = document.querySelector('.loading');
+                if (loading) {
+                    loading.remove();
+                }
+            }
+
+            // Show toast notification
+            function showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }
+
+            // Form validation
+            function validateForm(form) {
+                let isValid = true;
+                const inputs = form.querySelectorAll('input, textarea');
+                inputs.forEach(input => {
+                    if (!input.value.trim()) {
+                        input.classList.add('input-error');
+                        isValid = false;
+                    } else {
+                        input.classList.remove('input-error');
                     }
-                },
-                "interactivity": {
-                    "detect_on": "canvas",
-                    "events": {
-                        "onhover": {
-                            "enable": true,
-                            "mode": "grab"
-                        },
-                        "onclick": {
-                            "enable": true,
-                            "mode": "push"
-                        },
-                        "resize": true
-                    },
-                    "modes": {
-                        "grab": {
-                            "distance": 140,
-                            "line_linked": {
-                                "opacity": 1
-                            }
-                        },
-                        "bubble": {
-                            "distance": 400,
-                            "size": 40,
-                            "duration": 2,
-                            "opacity": 8,
-                            "speed": 3
-                        },
-                        "repulse": {
-                            "distance": 200,
-                            "duration": 0.4
-                        },
-                        "push": {
-                            "particles_nb": 4
-                        },
-                        "remove": {
-                            "particles_nb": 2
-                        }
+                });
+                return isValid;
+            }
+
+            // Handle form submission
+            function handleFormSubmit(form, callback) {
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    if (validateForm(form)) {
+                        showLoading();
+                        callback(form);
                     }
-                },
-                "retina_detect": true
+                });
+            }
+
+            // Add tooltips
+            function addTooltips() {
+                const elements = document.querySelectorAll('[data-tooltip]');
+                elements.forEach(el => {
+                    const tooltip = document.createElement('span');
+                    tooltip.className = 'tooltip-text';
+                    tooltip.textContent = el.getAttribute('data-tooltip');
+                    el.appendChild(tooltip);
+                });
+            }
+
+            // Initialize UX enhancements
+            document.addEventListener('DOMContentLoaded', () => {
+                addTooltips();
+                // Add other UX initializations here
             });
         </script>
     """, height=0)
 
 # In the main app section, add this after the session state initialization
-add_enhanced_ui() 
+add_enhanced_ux()
+add_modal_component()
+
+# Add event listener for thread creation
+components.html("""
+    <script>
+        document.addEventListener('create_thread', function(e) {
+            const { title, content } = e.detail;
+            // Trigger Streamlit to create new post
+            const event = new CustomEvent('streamlit:setComponentValue', {
+                detail: { value: { title, content } }
+            });
+            document.dispatchEvent(event);
+        });
+    </script>
+""", height=0)
+
+# Create new thread form
+if st.session_state.current_user:
+    # Add floating create button with tooltip
+    components.html("""
+        <div class="tooltip" style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
+            <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_tll0j4bb.json" 
+                          background="transparent" speed="1" 
+                          style="width: 60px; height: 60px; cursor: pointer;" 
+                          onclick="showLoading(); openModal()" 
+                          loop autoplay></lottie-player>
+            <span class="tooltip-text">Create New Thread</span>
+        </div>
+    """, height=0)
+
+    # Handle thread creation with loading state
+    if 'create_thread' in st.session_state:
+        showLoading()
+        create_new_post(
+            category_id='1',  # Default to General category
+            title=st.session_state.create_thread['title'],
+            content=st.session_state.create_thread['content']
+        )
+        st.session_state.create_thread = None
+        hideLoading()
+        showToast("Thread created successfully!", "success")
+        st.rerun() 
