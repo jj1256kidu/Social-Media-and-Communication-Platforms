@@ -306,37 +306,208 @@ def trigger_confetti():
         </script>
     """, height=0)
 
-# Add modal component
-def add_modal_component():
+# Add enhanced thread creation modal
+def add_enhanced_thread_modal():
     components.html("""
         <div id="newThreadModal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="closeModal()">&times;</span>
                 <h3>📝 Create a New Thread</h3>
-                <input id="threadTitle" type="text" placeholder="Thread Title" style="width:100%; padding:10px; margin:10px 0;" />
-                <textarea id="threadContent" placeholder="Your content here..." style="width:100%; height:100px; padding:10px;"></textarea>
-                <button onclick="postThread()" style="margin-top:10px; padding:10px 20px; background:#2f54eb; color:white; border:none; border-radius:8px; cursor:pointer;">Post</button>
+                <div class="form-group">
+                    <label for="threadTitle">Title</label>
+                    <input id="threadTitle" type="text" placeholder="Enter a catchy title..." class="focus-effect" />
+                    <div class="error-message" id="titleError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="threadContent">Content</label>
+                    <textarea id="threadContent" placeholder="Share your thoughts..." class="focus-effect"></textarea>
+                    <div class="error-message" id="contentError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="threadCategory">Category</label>
+                    <select id="threadCategory" class="focus-effect">
+                        <option value="1">💬 General</option>
+                        <option value="2">💻 Tech</option>
+                        <option value="3">😂 Humor</option>
+                        <option value="4">🎓 Education</option>
+                    </select>
+                </div>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <button onclick="postThread()" class="post-button">
+                    <span class="button-text">Post Thread</span>
+                    <span class="button-icon">📤</span>
+                </button>
             </div>
         </div>
+        <style>
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(5px);
+                z-index: 1000;
+                animation: fadeIn 0.3s ease;
+            }
+            .modal-content {
+                background: #1E1E2E;
+                margin: 10% auto;
+                padding: 30px;
+                border-radius: 20px;
+                width: 90%;
+                max-width: 600px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                animation: slideIn 0.3s ease;
+            }
+            .form-group {
+                margin-bottom: 20px;
+            }
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                color: #fff;
+                font-weight: 500;
+            }
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                width: 100%;
+                padding: 12px;
+                background: rgba(45, 45, 61, 0.5);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                color: white;
+                font-size: 16px;
+                transition: all 0.3s ease;
+            }
+            .form-group textarea {
+                min-height: 150px;
+                resize: vertical;
+            }
+            .post-button {
+                width: 100%;
+                padding: 15px;
+                background: linear-gradient(45deg, #2f54eb, #1a365d);
+                border: none;
+                border-radius: 10px;
+                color: white;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                transition: all 0.3s ease;
+            }
+            .post-button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(47, 84, 235, 0.3);
+            }
+            .post-button:active {
+                transform: translateY(0);
+            }
+            .button-icon {
+                font-size: 20px;
+                animation: float 2s ease-in-out infinite;
+            }
+            @keyframes float {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-5px); }
+            }
+            .close {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                font-size: 24px;
+                color: #fff;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            .close:hover {
+                color: #2f54eb;
+                transform: rotate(90deg);
+            }
+        </style>
         <script>
             function openModal() {
                 document.getElementById("newThreadModal").style.display = "block";
+                document.getElementById("threadTitle").focus();
             }
             function closeModal() {
                 document.getElementById("newThreadModal").style.display = "none";
+                resetForm();
+            }
+            function resetForm() {
+                document.getElementById("threadTitle").value = "";
+                document.getElementById("threadContent").value = "";
+                document.getElementById("threadCategory").value = "1";
+                document.getElementById("titleError").textContent = "";
+                document.getElementById("contentError").textContent = "";
+                document.querySelector(".progress-bar-fill").style.width = "0%";
+            }
+            function validateForm() {
+                let isValid = true;
+                const title = document.getElementById("threadTitle").value.trim();
+                const content = document.getElementById("threadContent").value.trim();
+                
+                if (!title) {
+                    document.getElementById("titleError").textContent = "Title is required";
+                    isValid = false;
+                } else {
+                    document.getElementById("titleError").textContent = "";
+                }
+                
+                if (!content) {
+                    document.getElementById("contentError").textContent = "Content is required";
+                    isValid = false;
+                } else {
+                    document.getElementById("contentError").textContent = "";
+                }
+                
+                return isValid;
+            }
+            function updateProgress() {
+                const title = document.getElementById("threadTitle").value.trim();
+                const content = document.getElementById("threadContent").value.trim();
+                let progress = 0;
+                
+                if (title) progress += 30;
+                if (content) progress += 50;
+                if (document.getElementById("threadCategory").value) progress += 20;
+                
+                document.querySelector(".progress-bar-fill").style.width = progress + "%";
             }
             function postThread() {
-                const title = document.getElementById("threadTitle").value;
-                const content = document.getElementById("threadContent").value;
-                if (title && content) {
+                if (validateForm()) {
+                    showLoading();
+                    const title = document.getElementById("threadTitle").value;
+                    const content = document.getElementById("threadContent").value;
+                    const category = document.getElementById("threadCategory").value;
+                    
                     // Trigger Streamlit to create new post
                     const event = new CustomEvent('create_thread', { 
-                        detail: { title, content }
+                        detail: { title, content, category }
                     });
                     document.dispatchEvent(event);
-                    closeModal();
+                    
+                    setTimeout(() => {
+                        hideLoading();
+                        showToast("Thread created successfully!", "success");
+                        closeModal();
+                    }, 1000);
                 }
             }
+            // Add event listeners
+            document.getElementById("threadTitle").addEventListener("input", updateProgress);
+            document.getElementById("threadContent").addEventListener("input", updateProgress);
+            document.getElementById("threadCategory").addEventListener("change", updateProgress);
+            
             // Close modal when clicking outside
             window.onclick = function(event) {
                 const modal = document.getElementById("newThreadModal");
@@ -345,63 +516,6 @@ def add_modal_component():
                 }
             }
         </script>
-        <style>
-            .modal {
-                display: none;
-                position: fixed;
-                z-index: 1001;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                overflow: auto;
-                background-color: rgba(0, 0, 0, 0.4);
-                backdrop-filter: blur(5px);
-            }
-            .modal-content {
-                background-color: #1E1E2E;
-                margin: 10% auto;
-                padding: 20px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 15px;
-                width: 80%;
-                max-width: 500px;
-                animation: slideIn 0.3s ease;
-            }
-            .close {
-                color: #aaa;
-                float: right;
-                font-size: 28px;
-                font-weight: bold;
-                cursor: pointer;
-            }
-            .close:hover {
-                color: #fff;
-            }
-            @keyframes slideIn {
-                from { transform: translateY(-50px); opacity: 0; }
-                to { transform: translateY(0); opacity: 1; }
-            }
-            #threadTitle, #threadContent {
-                background: rgba(45, 45, 61, 0.5);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 10px;
-                color: white;
-                font-family: 'Poppins', sans-serif;
-            }
-            #threadTitle:focus, #threadContent:focus {
-                outline: none;
-                border-color: #2f54eb;
-                box-shadow: 0 0 10px rgba(47, 84, 235, 0.3);
-            }
-            button {
-                transition: all 0.3s ease;
-            }
-            button:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(47, 84, 235, 0.3);
-            }
-        </style>
     """, height=0)
 
 # Function to handle category selection
@@ -1051,8 +1165,8 @@ elif st.session_state.current_user:
     # Add theme switcher
     theme_switcher()
     
-    # Add modal component
-    add_modal_component()
+    # Add enhanced thread creation modal
+    add_enhanced_thread_modal()
     
     # Top Navigation Bar
     search_col, profile_col = st.columns([3, 1])
@@ -1142,25 +1256,29 @@ elif st.session_state.current_user:
 
     # Create new thread form
     if st.session_state.current_user:
-        # Add floating create button
+        # Add floating create button with tooltip
         components.html("""
-            <div style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
+            <div class="tooltip" style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
                 <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_tll0j4bb.json" 
                               background="transparent" speed="1" 
                               style="width: 60px; height: 60px; cursor: pointer;" 
-                              onclick="openModal()" 
+                              onclick="showLoading(); openModal()" 
                               loop autoplay></lottie-player>
+                <span class="tooltip-text">Create New Thread</span>
             </div>
         """, height=0)
 
-        # Handle thread creation
+        # Handle thread creation with loading state
         if 'create_thread' in st.session_state:
+            showLoading()
             create_new_post(
-                category_id='1',  # Default to General category
+                category_id=st.session_state.create_thread.get('category', '1'),
                 title=st.session_state.create_thread['title'],
                 content=st.session_state.create_thread['content']
             )
             st.session_state.create_thread = None
+            hideLoading()
+            showToast("Thread created successfully!", "success")
             st.rerun()
 
 # Add enhanced UX components
@@ -1400,7 +1518,7 @@ def add_enhanced_ux():
 
 # In the main app section, add this after the session state initialization
 add_enhanced_ux()
-add_modal_component()
+add_enhanced_thread_modal()
 
 # Add event listener for thread creation
 components.html("""
@@ -1434,7 +1552,7 @@ if st.session_state.current_user:
     if 'create_thread' in st.session_state:
         showLoading()
         create_new_post(
-            category_id='1',  # Default to General category
+            category_id=st.session_state.create_thread.get('category', '1'),
             title=st.session_state.create_thread['title'],
             content=st.session_state.create_thread['content']
         )
