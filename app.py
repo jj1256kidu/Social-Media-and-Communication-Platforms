@@ -372,28 +372,52 @@ if not st.session_state.current_user:
         .stApp {
             margin-top: -80px;
         }
+        .brand-area {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .brand-name {
+            font-size: 42px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00C6FF, #0072FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0px;
+            line-height: 1;
+        }
+        .tagline {
+            font-size: 16px;
+            color: #666;
+            margin-top: 0px;
+        }
+        .stForm {
+            margin-top: -20px;
+        }
+        .stTextInput > div > div > input {
+            padding: 10px 15px;
+        }
         </style>
     """, unsafe_allow_html=True)
     
     st.markdown("""
-        <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;">
-            <div style="width: 100%; max-width: 900px; display: flex; gap: 40px; align-items: center;">
+        <div style="display: flex; justify-content: center; align-items: center; min-height: 90vh; padding: 10px;">
+            <div style="width: 100%; max-width: 850px; display: flex; gap: 20px; align-items: center;">
                 <div class="login-container" style="flex: 1;">
                     <div class="brand-area">
                         <div class="brand-name">ForumHub</div>
                         <div class="tagline">Where Ideas Thread Together</div>
                     </div>
-                    <div style="width: 100%; height: 200px;">
+                    <div style="width: 100%; height: 180px; margin-top: -10px;">
                     """, unsafe_allow_html=True)
     
     if lottie_wave:
-        st_lottie(lottie_wave, height=200, key="wave")
+        st_lottie(lottie_wave, height=180, key="wave")
     
     st.markdown("""
                     </div>
                 </div>
-                <div class="login-card" style="flex: 1;">
-                    <div style="padding: 20px;">
+                <div class="login-card" style="flex: 1; margin-top: -20px;">
+                    <div style="padding: 15px;">
     """, unsafe_allow_html=True)
     
     with st.form("login_form", clear_on_submit=True):
@@ -403,7 +427,7 @@ if not st.session_state.current_user:
         with cols[0]:
             remember_me = st.checkbox("Remember me")
         with cols[1]:
-            st.markdown('<div class="forgot-password"><a href="#">Forgot?</a></div>', unsafe_allow_html=True)
+            st.markdown('<div class="forgot-password" style="margin-top: 3px;"><a href="#">Forgot?</a></div>', unsafe_allow_html=True)
         
         submitted = st.form_submit_button("Login", use_container_width=True)
         
@@ -420,7 +444,7 @@ if not st.session_state.current_user:
                 }
                 st.success("Login successful!")
                 if lottie_login_success:
-                    st_lottie(lottie_login_success, height=100, key="login_success")
+                    st_lottie(lottie_login_success, height=80, key="login_success")
                 st.balloons()
                 time.sleep(1)
                 st.experimental_rerun()
