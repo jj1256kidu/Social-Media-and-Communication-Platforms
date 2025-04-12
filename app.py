@@ -93,6 +93,19 @@ if 'show_new_post_form' not in st.session_state:
 if 'selected_category' not in st.session_state:
     st.session_state.selected_category = None
 
+# Function to handle category selection
+def handle_category_selection(category_id):
+    st.session_state.selected_category = category_id
+    st.rerun()
+
+# Function to handle upvotes
+def handle_upvote(post_id):
+    for post in st.session_state.posts:
+        if post['id'] == post_id:
+            post['upvotes'] += 1
+            return True
+    return False
+
 # Function to create new post
 def create_new_post(category_id, title, content):
     new_post = {
@@ -802,19 +815,6 @@ elif st.session_state.current_user:
                 if st.form_submit_button("Cancel", use_container_width=True):
                     st.session_state.show_new_post_form = False
                     st.rerun()
-
-# Function to handle upvotes
-def handle_upvote(post_id):
-    for post in st.session_state.posts:
-        if post['id'] == post_id:
-            post['upvotes'] += 1
-            return True
-    return False
-
-# Function to handle category selection
-def handle_category_selection(category_id):
-    st.session_state.selected_category = category_id
-    st.rerun()
 
 # Add theme switcher component
 def theme_switcher():
