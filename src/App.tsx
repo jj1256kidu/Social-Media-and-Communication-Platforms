@@ -1,173 +1,194 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { PaperAirplaneIcon, UserIcon, PhotographIcon, EmojiHappyIcon, CheckIcon } from '@heroicons/react/outline';
-import data from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
-import { useDropzone } from 'react-dropzone';
+import { UserIcon, CogIcon, ArrowUpIcon, ArrowDownIcon, ChatBubbleLeftIcon } from '@heroicons/react/outline';
 
-interface Message {
-  id: number;
-  text: string;
-  sender: string;
-  timestamp: Date;
-  isMedia?: boolean;
-  mediaUrl?: string;
-  reactions?: { [key: string]: string[] };
-  status?: 'sent' | 'delivered' | 'read';
+interface User {
+  username: string;
+  avatar: string;
+  status: 'online' | 'offline' | 'away';
+  lastSeen?: Date;
+  karma: number;
 }
 
-interface Chat {
+interface Post {
+  id: number;
+  title: string;
+  content: string;
+  author: string;
+  timestamp: Date;
+  category: string;
+  upvotes: number;
+  downvotes: number;
+  comments: Comment[];
+  tags: string[];
+}
+
+interface Comment {
+  id: number;
+  content: string;
+  author: string;
+  timestamp: Date;
+  upvotes: number;
+  downvotes: number;
+  replies: Comment[];
+}
+
+interface Category {
   id: number;
   name: string;
-  members: string[];
-  lastMessage?: Message;
-  isTyping?: string[];
+  description: string;
+  postCount: number;
+  lastPost?: Post;
 }
 
 const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
-  const [currentChat, setCurrentChat] = useState<Chat | null>(null);
-  const [message, setMessage] = useState('');
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [userAvatar, setUserAvatar] = useState('👤');
+  const [showProfile, setShowProfile] = useState(false);
+  const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
+  const [currentPost, setCurrentPost] = useState<Post | null>(null);
+  const [newPostTitle, setNewPostTitle] = useState('');
+  const [newPostContent, setNewPostContent] = useState('');
+  const [newComment, setNewComment] = useState('');
 
-  // Enhanced mock data
-  const mockUsers = {
-    'Alice': { avatar: '👩‍💼', online: true },
-    'Bob': { avatar: '👨‍💼', online: true },
-    'Charlie': { avatar: '👨‍🔬', online: false },
-    'David': { avatar: '👨‍🎨', online: true },
-    'Eve': { avatar: '👩‍🎤', online: false }
+  // Mock data
+  const mockUsers: { [key: string]: User } = {
+    'Alice': { username: 'Alice', avatar: '👩‍💼', status: 'online', karma: 150 },
+    'Bob': { username: 'Bob', avatar: '👨‍💼', status: 'online', karma: 89 },
+    'Charlie': { username: 'Charlie', avatar: '👨‍🔬', status: 'offline', lastSeen: new Date(Date.now() - 3600000), karma: 42 }
   };
 
-  const [chats, setChats] = useState<Chat[]>([
+  const [categories, setCategories] = useState<Category[]>([
     {
       id: 1,
-      name: 'General Chat',
-      members: ['Alice', 'Bob', 'Charlie'],
-      lastMessage: {
+      name: 'General Discussion',
+      description: 'Talk about anything and everything',
+      postCount: 24,
+      lastPost: {
         id: 1,
-        text: 'Hello everyone! 👋',
-        sender: 'Alice',
+        title: 'Welcome to the forum!',
+        content: 'This is a new forum for everyone to discuss various topics.',
+        author: 'Alice',
         timestamp: new Date(),
-        status: 'read',
-        reactions: { '👍': ['Bob', 'Charlie'] }
-      },
-      isTyping: ['Bob']
-    },
-    {
-      id: 2,
-      name: 'Work Group',
-      members: ['David', 'Eve'],
-      lastMessage: {
-        id: 2,
-        text: 'Meeting at 3 PM today',
-        sender: 'David',
-        timestamp: new Date(),
-        status: 'delivered'
+        category: 'General Discussion',
+        upvotes: 15,
+        downvotes: 2,
+        comments: [],
+        tags: ['welcome', 'introduction']
       }
     },
     {
-      id: 3,
-      name: 'Project Team',
-      members: ['Alice', 'David', 'Eve'],
-      lastMessage: {
-        id: 3,
-        text: 'Just shared the design mockups',
-        sender: 'Eve',
+      id: 2,
+      name: 'Technology',
+      description: 'Discuss the latest in tech',
+      postCount: 12,
+      lastPost: {
+        id: 2,
+        title: 'New AI Developments',
+        content: 'What do you think about the latest AI advancements?',
+        author: 'Bob',
         timestamp: new Date(),
-        isMedia: true,
-        mediaUrl: 'https://picsum.photos/200/300',
-        status: 'read'
+        category: 'Technology',
+        upvotes: 8,
+        downvotes: 1,
+        comments: [],
+        tags: ['ai', 'technology']
       }
     }
   ]);
 
-  const { getRootProps, getInputProps } = useDropzone({
-    accept: {
-      'image/*': ['.png', '.jpg', '.jpeg', '.gif']
-    },
-    onDrop: (acceptedFiles) => {
-      const file = acceptedFiles[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          setPreviewUrl(reader.result as string);
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-  });
+  const [posts, setPosts] = useState<Post[]>([]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const validateUsername = (username: string): boolean => {
+    const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{2,19}$/;
+    return usernameRegex.test(username);
   };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [currentChat]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username.trim()) {
-      setIsLoggedIn(true);
-    }
-  };
-
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if ((message.trim() || previewUrl) && currentChat) {
-      const newMessage: Message = {
-        id: Date.now(),
-        text: message,
-        sender: username,
-        timestamp: new Date(),
-        status: 'sent',
-        ...(previewUrl && { isMedia: true, mediaUrl: previewUrl })
-      };
-
-      setChats(chats.map(chat => 
-        chat.id === currentChat.id 
-          ? { 
-              ...chat, 
-              lastMessage: newMessage,
-              isTyping: chat.isTyping?.filter(user => user !== username)
-            } 
-          : chat
-      ));
-
-      setMessage('');
-      setPreviewUrl(null);
-      setShowEmojiPicker(false);
-    }
-  };
-
-  const addReaction = (messageId: number, emoji: string) => {
-    setChats(chats.map(chat => {
-      if (chat.lastMessage?.id === messageId) {
-        const reactions = chat.lastMessage.reactions || {};
-        const users = reactions[emoji] || [];
-        if (!users.includes(username)) {
-          reactions[emoji] = [...users, username];
-        }
-        return {
-          ...chat,
-          lastMessage: {
-            ...chat.lastMessage,
-            reactions
-          }
+    if (validateUsername(username)) {
+      if (!mockUsers[username]) {
+        mockUsers[username] = {
+          username,
+          avatar: '👤',
+          status: 'online',
+          karma: 0
         };
       }
-      return chat;
+      setIsLoggedIn(true);
+    } else {
+      alert('Invalid username! Username must be 3-20 characters, start with a letter, and can only contain letters, numbers, and underscores.');
+    }
+  };
+
+  const handleVote = (postId: number, isUpvote: boolean) => {
+    setPosts(posts.map(post => {
+      if (post.id === postId) {
+        return {
+          ...post,
+          upvotes: isUpvote ? post.upvotes + 1 : post.upvotes,
+          downvotes: !isUpvote ? post.downvotes + 1 : post.downvotes
+        };
+      }
+      return post;
     }));
+  };
+
+  const handleCreatePost = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPostTitle.trim() && newPostContent.trim() && currentCategory) {
+      const newPost: Post = {
+        id: Date.now(),
+        title: newPostTitle,
+        content: newPostContent,
+        author: username,
+        timestamp: new Date(),
+        category: currentCategory.name,
+        upvotes: 0,
+        downvotes: 0,
+        comments: [],
+        tags: []
+      };
+
+      setPosts([...posts, newPost]);
+      setNewPostTitle('');
+      setNewPostContent('');
+      setCurrentPost(newPost);
+    }
+  };
+
+  const handleAddComment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newComment.trim() && currentPost) {
+      const newCommentObj: Comment = {
+        id: Date.now(),
+        content: newComment,
+        author: username,
+        timestamp: new Date(),
+        upvotes: 0,
+        downvotes: 0,
+        replies: []
+      };
+
+      setPosts(posts.map(post => {
+        if (post.id === currentPost.id) {
+          return {
+            ...post,
+            comments: [...post.comments, newCommentObj]
+          };
+        }
+        return post;
+      }));
+
+      setNewComment('');
+    }
   };
 
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center">
         <div className="bg-white p-8 rounded-2xl shadow-xl w-96 animate-fade-in">
-          <h1 className="text-3xl font-bold text-primary-600 mb-6 text-center">Minimal Messenger</h1>
+          <h1 className="text-3xl font-bold text-primary-600 mb-6 text-center">Forum</h1>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="relative">
               <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400 h-5 w-5" />
@@ -184,7 +205,7 @@ const App: React.FC = () => {
               type="submit"
               className="w-full bg-primary-600 text-white py-2 rounded-lg hover:bg-primary-700 transition-colors duration-200"
             >
-              Enter Chat
+              Enter Forum
             </button>
           </form>
         </div>
@@ -196,168 +217,202 @@ const App: React.FC = () => {
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
       <div className="w-80 bg-white border-r border-gray-200">
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800">Chats</h2>
+        <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <span className="text-2xl">{userAvatar}</span>
+            <span className="font-medium">{username}</span>
+            <span className="text-sm text-gray-500">({mockUsers[username].karma} karma)</span>
+          </div>
+          <button
+            onClick={() => setShowProfile(!showProfile)}
+            className="p-2 text-gray-500 hover:text-primary-600 transition-colors duration-200"
+          >
+            <CogIcon className="h-5 w-5" />
+          </button>
         </div>
+
         <div className="overflow-y-auto h-[calc(100vh-4rem)]">
-          {chats.map((chat) => (
-            <div
-              key={chat.id}
-              onClick={() => setCurrentChat(chat)}
-              className={`p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors duration-200 ${
-                currentChat?.id === chat.id ? 'bg-primary-50' : ''
-              }`}
-            >
-              <div className="flex justify-between items-start">
-                <h3 className="font-medium text-gray-800">{chat.name}</h3>
-                <span className="text-xs text-gray-500">
-                  {chat.lastMessage?.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
+          <div className="p-4">
+            <h2 className="font-semibold text-gray-800 mb-4">Categories</h2>
+            {categories.map((category) => (
+              <div
+                key={category.id}
+                onClick={() => setCurrentCategory(category)}
+                className={`p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors duration-200 ${
+                  currentCategory?.id === category.id ? 'bg-primary-50' : ''
+                }`}
+              >
+                <h3 className="font-medium text-gray-800">{category.name}</h3>
+                <p className="text-sm text-gray-500">{category.description}</p>
+                <div className="flex justify-between items-center mt-2">
+                  <span className="text-xs text-gray-500">{category.postCount} posts</span>
+                  {category.lastPost && (
+                    <span className="text-xs text-gray-500">
+                      Last post: {category.lastPost.timestamp.toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
               </div>
-              <p className="text-sm text-gray-500 truncate">
-                {chat.lastMessage?.sender}: {chat.lastMessage?.text}
-              </p>
-              {chat.isTyping && chat.isTyping.length > 0 && (
-                <p className="text-xs text-primary-600">typing...</p>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Main Chat Area */}
+      {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {currentChat ? (
-          <>
-            {/* Chat Header */}
-            <div className="p-4 border-b border-gray-200 bg-white">
-              <h2 className="text-xl font-semibold text-gray-800">{currentChat.name}</h2>
-              <div className="flex items-center space-x-2">
-                {currentChat.members.map(member => (
-                  <span key={member} className="text-sm text-gray-500">
-                    {mockUsers[member].avatar} {member}
-                    {mockUsers[member].online && (
-                      <span className="ml-1 inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-                    )}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {currentChat.lastMessage && (
-                <div className="flex flex-col space-y-2">
-                  <div className={`flex ${currentChat.lastMessage.sender === username ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`message-bubble ${
-                      currentChat.lastMessage.sender === username ? 'message-bubble-sent' : 'message-bubble-received'
-                    }`}>
-                      {currentChat.lastMessage.isMedia ? (
-                        <img 
-                          src={currentChat.lastMessage.mediaUrl} 
-                          alt="Shared media" 
-                          className="max-w-xs rounded-lg"
-                        />
-                      ) : (
-                        <div>{currentChat.lastMessage.text}</div>
-                      )}
-                      <div className="flex justify-between items-center mt-1">
-                        <span className="text-xs opacity-70">
-                          {currentChat.lastMessage.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                        {currentChat.lastMessage.sender === username && (
-                          <span className="text-xs">
-                            {currentChat.lastMessage.status === 'read' ? (
-                              <CheckIcon className="h-4 w-4 text-blue-500" />
-                            ) : currentChat.lastMessage.status === 'delivered' ? (
-                              <CheckIcon className="h-4 w-4 text-gray-400" />
-                            ) : null}
-                          </span>
-                        )}
-                      </div>
-                      {currentChat.lastMessage.reactions && (
-                        <div className="flex space-x-1 mt-1">
-                          {Object.entries(currentChat.lastMessage.reactions).map(([emoji, users]) => (
-                            <button
-                              key={emoji}
-                              onClick={() => addReaction(currentChat.lastMessage!.id, emoji)}
-                              className="text-xs bg-gray-100 rounded-full px-2 py-1 hover:bg-gray-200"
-                            >
-                              {emoji} {users.length}
-                            </button>
-                          ))}
-                        </div>
-                      )}
+        {currentCategory ? (
+          currentPost ? (
+            // Post View
+            <div className="flex-1 overflow-y-auto p-4">
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="flex items-start space-x-4">
+                  <div className="flex flex-col items-center">
+                    <button
+                      onClick={() => handleVote(currentPost.id, true)}
+                      className="p-2 hover:text-green-500 transition-colors duration-200"
+                    >
+                      <ArrowUpIcon className="h-5 w-5" />
+                    </button>
+                    <span className="font-medium">{currentPost.upvotes - currentPost.downvotes}</span>
+                    <button
+                      onClick={() => handleVote(currentPost.id, false)}
+                      className="p-2 hover:text-red-500 transition-colors duration-200"
+                    >
+                      <ArrowDownIcon className="h-5 w-5" />
+                    </button>
+                  </div>
+                  <div className="flex-1">
+                    <h1 className="text-2xl font-bold text-gray-800">{currentPost.title}</h1>
+                    <div className="flex items-center space-x-2 mt-2">
+                      <span className="text-sm text-gray-500">
+                        Posted by {currentPost.author} on {currentPost.timestamp.toLocaleDateString()}
+                      </span>
                     </div>
+                    <div className="mt-4 text-gray-700">{currentPost.content}</div>
                   </div>
                 </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
 
-            {/* Message Input */}
-            <div className="p-4 border-t border-gray-200 bg-white">
-              {previewUrl && (
-                <div className="mb-4 relative">
-                  <img src={previewUrl} alt="Preview" className="max-w-xs rounded-lg" />
-                  <button
-                    onClick={() => setPreviewUrl(null)}
-                    className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-gray-100"
-                  >
-                    ×
-                  </button>
-                </div>
-              )}
-              <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    className="p-2 text-gray-500 hover:text-primary-600 transition-colors duration-200"
-                  >
-                    <EmojiHappyIcon className="h-6 w-6" />
-                  </button>
-                  {showEmojiPicker && (
-                    <div className="absolute bottom-full mb-2">
-                      <Picker
-                        data={data}
-                        onEmojiSelect={(emoji: any) => {
-                          setMessage(prev => prev + emoji.native);
-                          setShowEmojiPicker(false);
-                        }}
-                        theme="light"
-                      />
+                {/* Comments */}
+                <div className="mt-8">
+                  <h2 className="text-xl font-semibold text-gray-800 mb-4">Comments</h2>
+                  <form onSubmit={handleAddComment} className="mb-6">
+                    <textarea
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="Add a comment..."
+                      className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      rows={3}
+                    />
+                    <button
+                      type="submit"
+                      className="mt-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors duration-200"
+                    >
+                      Post Comment
+                    </button>
+                  </form>
+
+                  {currentPost.comments.map((comment) => (
+                    <div key={comment.id} className="border-t border-gray-200 pt-4 mt-4">
+                      <div className="flex items-start space-x-4">
+                        <div className="flex flex-col items-center">
+                          <button
+                            onClick={() => {/* Handle comment vote */}}
+                            className="p-2 hover:text-green-500 transition-colors duration-200"
+                          >
+                            <ArrowUpIcon className="h-5 w-5" />
+                          </button>
+                          <span className="font-medium">{comment.upvotes - comment.downvotes}</span>
+                          <button
+                            onClick={() => {/* Handle comment vote */}}
+                            className="p-2 hover:text-red-500 transition-colors duration-200"
+                          >
+                            <ArrowDownIcon className="h-5 w-5" />
+                          </button>
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-medium">{comment.author}</span>
+                            <span className="text-sm text-gray-500">
+                              {comment.timestamp.toLocaleDateString()}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-gray-700">{comment.content}</p>
+                        </div>
+                      </div>
                     </div>
-                  )}
+                  ))}
                 </div>
-                <div {...getRootProps()} className="flex-1">
-                  <input {...getInputProps()} />
-                  <button
-                    type="button"
-                    className="p-2 text-gray-500 hover:text-primary-600 transition-colors duration-200"
-                  >
-                    <PhotographIcon className="h-6 w-6" />
-                  </button>
-                </div>
+              </div>
+            </div>
+          ) : (
+            // Category View
+            <div className="flex-1 overflow-y-auto p-4">
+              <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold text-gray-800">{currentCategory.name}</h1>
+                <button
+                  onClick={() => setCurrentPost(null)}
+                  className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors duration-200"
+                >
+                  New Post
+                </button>
+              </div>
+
+              <form onSubmit={handleCreatePost} className="bg-white rounded-lg shadow p-6 mb-6">
                 <input
                   type="text"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Type a message..."
-                  className="flex-1 border border-gray-200 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  value={newPostTitle}
+                  onChange={(e) => setNewPostTitle(e.target.value)}
+                  placeholder="Post title"
+                  className="w-full border border-gray-200 rounded-lg p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+                <textarea
+                  value={newPostContent}
+                  onChange={(e) => setNewPostContent(e.target.value)}
+                  placeholder="Write your post..."
+                  className="w-full border border-gray-200 rounded-lg p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  rows={6}
                 />
                 <button
                   type="submit"
-                  className="p-2 text-primary-600 hover:text-primary-700 transition-colors duration-200"
+                  className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors duration-200"
                 >
-                  <PaperAirplaneIcon className="h-6 w-6" />
+                  Create Post
                 </button>
               </form>
+
+              {posts
+                .filter(post => post.category === currentCategory.name)
+                .map((post) => (
+                  <div
+                    key={post.id}
+                    onClick={() => setCurrentPost(post)}
+                    className="bg-white rounded-lg shadow p-6 mb-4 cursor-pointer hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    <div className="flex items-start space-x-4">
+                      <div className="flex flex-col items-center">
+                        <span className="font-medium">{post.upvotes - post.downvotes}</span>
+                        <span className="text-xs text-gray-500">votes</span>
+                      </div>
+                      <div className="flex-1">
+                        <h2 className="text-xl font-semibold text-gray-800">{post.title}</h2>
+                        <div className="flex items-center space-x-4 mt-2">
+                          <span className="text-sm text-gray-500">
+                            Posted by {post.author} on {post.timestamp.toLocaleDateString()}
+                          </span>
+                          <div className="flex items-center space-x-1">
+                            <ChatBubbleLeftIcon className="h-4 w-4 text-gray-400" />
+                            <span className="text-sm text-gray-500">{post.comments.length} comments</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
             </div>
-          </>
+          )
         ) : (
           <div className="flex-1 flex items-center justify-center">
-            <p className="text-gray-500">Select a chat to start messaging</p>
+            <p className="text-gray-500">Select a category to view posts</p>
           </div>
         )}
       </div>
