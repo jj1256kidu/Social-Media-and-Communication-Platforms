@@ -18,7 +18,8 @@ import {
   UserGroupIcon,
   BookmarkIcon,
   BellIcon,
-  XMarkIcon
+  XMarkIcon,
+  MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -57,6 +58,8 @@ interface Post {
   isAnonymous: boolean;
   views: number;
   isTrending: boolean;
+  upvotedBy: string[];
+  downvotedBy: string[];
 }
 
 interface Comment {
@@ -137,7 +140,9 @@ const App: React.FC = () => {
       lastReplyAt: new Date(),
       isAnonymous: false,
       views: 0,
-      isTrending: true
+      isTrending: true,
+      upvotedBy: [],
+      downvotedBy: []
     }
   ]);
 
@@ -154,11 +159,19 @@ const App: React.FC = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
-  const handleLogin = (username: string) => {
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [showCommentModal, setShowCommentModal] = useState(false);
+
+  const handleLogin = () => {
     setCurrentUser({
-      id: '2',
-      username,
-      avatar: '👤'
+      id: '1',
+      username: 'Demo User',
+      avatar: '👤',
+      bio: 'Demo user for testing',
+      karma: 0,
+      level: 1,
+      postCount: 0,
+      commentCount: 0
     });
   };
 
@@ -168,7 +181,9 @@ const App: React.FC = () => {
         return {
           ...post,
           upvotes: isUpvote ? post.upvotes + 1 : post.upvotes,
-          downvotes: !isUpvote ? post.downvotes + 1 : post.downvotes
+          downvotes: !isUpvote ? post.downvotes + 1 : post.downvotes,
+          upvotedBy: isUpvote ? [...post.upvotedBy, currentUser?.id || ''] : post.upvotedBy.filter(id => id !== currentUser?.id),
+          downvotedBy: !isUpvote ? [...post.downvotedBy, currentUser?.id || ''] : post.downvotedBy.filter(id => id !== currentUser?.id)
         };
       }
       return post;
@@ -192,7 +207,9 @@ const App: React.FC = () => {
       lastReplyAt: new Date(),
       isAnonymous: false,
       views: 0,
-      isTrending: false
+      isTrending: false,
+      upvotedBy: [],
+      downvotedBy: []
     };
 
     setPosts([newPost, ...posts]);
@@ -258,206 +275,276 @@ const App: React.FC = () => {
     }
   }, [searchQuery]);
 
+  // Improved particles effect
+  useEffect(() => {
+    const canvas = document.getElementById('particle-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles: Particle[] = [];
+    const particleCount = Math.min(100, Math.floor((window.innerWidth * window.innerHeight) / 10000));
+
+    class Particle {
+      x: number;
+      y: number;
+      size: number;
+      speedX: number;
+      speedY: number;
+      color: string;
+
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 1;
+        this.speedX = Math.random() * 1 - 0.5;
+        this.speedY = Math.random() * 1 - 0.5;
+        this.color = isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(59, 130, 246, 0.2)';
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        if (this.x > canvas.width) this.x = 0;
+        if (this.x < 0) this.x = canvas.width;
+        if (this.y > canvas.height) this.y = 0;
+        if (this.y < 0) this.y = canvas.height;
+      }
+
+      draw() {
+        if (!ctx) return;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
+
+    const animate = () => {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
+      requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isDarkMode]);
+
   return (
     <Router>
-      <div className={`min-h-screen ${isDarkMode ? 'dark' : ''}`}>
-        {/* Particle Background */}
-        <div className="particle-background" id="particles-js" />
-
-        {/* Navigation */}
-        <nav className="modern-nav fixed top-0 left-0 right-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center">
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="text-2xl font-bold text-gradient"
-                >
-                  Future Forum
-                </motion.div>
-              </div>
-
+      <div className={`min-h-screen transition-colors duration-200 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+        <canvas
+          id="particle-canvas"
+          className="fixed inset-0 z-0"
+          style={{ pointerEvents: 'none' }}
+        />
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <header className="py-6">
+            <div className="flex justify-between items-center">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+                ForumHub
+              </h1>
               <div className="flex items-center space-x-4">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setShowSearch(!showSearch)}
-                  className="p-2 rounded-xl hover:bg-surface/50"
-                >
-                  <SearchIcon className="w-5 h-5 text-text" />
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
+                <button
                   onClick={toggleDarkMode}
-                  className="p-2 rounded-xl hover:bg-surface/50"
+                  className={`p-2 rounded-full transition-colors ${
+                    isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-100'
+                  }`}
                 >
                   {isDarkMode ? (
-                    <SunIcon className="w-5 h-5 text-text" />
+                    <SunIcon className="h-6 w-6 text-yellow-400" />
                   ) : (
-                    <MoonIcon className="w-5 h-5 text-text" />
+                    <MoonIcon className="h-6 w-6 text-gray-600" />
                   )}
-                </motion.button>
+                </button>
+                {currentUser ? (
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium">{currentUser.username}</span>
+                    <button
+                      onClick={() => setCurrentUser(null)}
+                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleLogin}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  >
+                    Login
+                  </button>
+                )}
               </div>
             </div>
-          </div>
-        </nav>
+          </header>
 
-        {/* Search Bar */}
-        <AnimatePresence>
-          {showSearch && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="fixed top-20 left-0 right-0 z-40 px-4"
-            >
-              <div className="max-w-2xl mx-auto">
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder={isTyping ? 'Searching...' : 'Search threads, users, or categories'}
-                    className="w-full px-4 py-3 rounded-xl bg-surface/50 backdrop-blur-lg border border-border/50
-                             focus:outline-none focus:ring-2 focus:ring-primary text-text"
-                  />
-                  <button
-                    onClick={() => setShowSearch(false)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                  >
-                    <XMarkIcon className="w-5 h-5 text-text-light" />
-                  </button>
-                </div>
+          {/* Main Content */}
+          <main className="py-8">
+            {/* Search and Filters */}
+            <div className="mb-8 flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search posts..."
+                  className={`w-full px-4 py-2 rounded-lg border ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-700 text-white'
+                      : 'bg-white border-gray-300 text-gray-900'
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                />
+                <MagnifyingGlassIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setSelectedFilter('trending')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    selectedFilter === 'trending'
+                      ? 'bg-blue-500 text-white'
+                      : isDarkMode
+                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      : 'bg-white text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  <FireIcon className="h-5 w-5" />
+                  Trending
+                </button>
+                <button
+                  onClick={() => setSelectedFilter('recent')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    selectedFilter === 'recent'
+                      ? 'bg-blue-500 text-white'
+                      : isDarkMode
+                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      : 'bg-white text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  <ClockIcon className="h-5 w-5" />
+                  Recent
+                </button>
+              </div>
+            </div>
 
-        {/* Main Content */}
-        <main className="pt-20 pb-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Categories Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              {categories.map((category, index) => (
+            {/* Categories */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {categories.map((category) => (
                 <motion.div
                   key={category.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="modern-card p-6 cursor-pointer hover-lift"
-                  onClick={() => setSelectedCategory(category)}
+                  whileHover={{ scale: 1.02 }}
+                  className={`p-6 rounded-xl shadow-lg transition-colors ${
+                    isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'
+                  }`}
                 >
-                  <div className="flex items-center space-x-3 mb-4">
-                    <span className="text-2xl">{category.icon}</span>
-                    <h3 className="text-lg font-semibold text-text">{category.name}</h3>
-                  </div>
-                  <p className="text-sm text-text-light mb-4">{category.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-text-light">{category.threadCount} threads</span>
+                  <h3 className="text-xl font-semibold mb-2">{category.name}</h3>
+                  <p className="text-sm opacity-75">{category.description}</p>
+                  <div className="mt-4 flex justify-between items-center">
+                    <span className="text-sm">
+                      {posts.filter((p) => p.category.id === category.id).length} posts
+                    </span>
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
+                      onClick={() => {
+                        setNewPostCategory(category.id);
                         setShowNewThreadModal(true);
                       }}
-                      className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20"
+                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                     >
-                      <PlusIcon className="w-5 h-5" />
+                      New Post
                     </button>
                   </div>
                 </motion.div>
               ))}
             </div>
 
-            {/* Trending Threads */}
-            <div className="mb-12">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-text">Trending Threads</h2>
-                <button className="minimal-button">View All</button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPosts.map(post => (
-                  <motion.div
-                    key={post.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="modern-card p-4 hover-lift"
-                  >
-                    {post.isTrending && (
-                      <div className="flex items-center text-primary mb-2">
-                        <FireIcon className="h-4 w-4 mr-1" />
-                        <span className="text-sm font-medium">Trending</span>
-                      </div>
-                    )}
-                    <div className="flex items-start space-x-4">
-                      <div className="flex flex-col items-center">
-                        <button
-                          onClick={() => handleVote(post.id, true)}
-                          className="vote-button"
-                        >
-                          <ArrowUpIcon className="h-5 w-5" />
-                        </button>
-                        <span className="font-medium my-1">{post.upvotes - post.downvotes}</span>
-                        <button
-                          onClick={() => handleVote(post.id, false)}
-                          className="vote-button"
-                        >
-                          <ArrowDownIcon className="h-5 w-5" />
-                        </button>
-                      </div>
-                      <div className="flex-1">
-                        <h2 className="text-lg font-semibold">{post.title}</h2>
-                        <p className="text-text-light mt-2">{post.content}</p>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {post.tags.map(tag => (
-                            <span key={tag} className="category-pill">
-                              <TagIcon className="h-3 w-3 mr-1" />
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                        <div className="flex items-center mt-4 text-sm text-text-light">
-                          <div className="flex items-center">
-                            <div className="avatar mr-2">
-                              {post.author.avatar}
-                            </div>
-                            <span>{post.author.username}</span>
-                          </div>
-                          <span className="mx-2">•</span>
-                          <span className="category-pill">{post.category.name}</span>
-                          <span className="mx-2">•</span>
-                          <span>{post.createdAt.toLocaleDateString()}</span>
-                        </div>
-                        <div className="comment-section">
-                          <button
-                            onClick={() => {/* Open comments section */}}
-                            className="flex items-center text-primary hover:text-primary-dark"
-                          >
-                            <ChatBubbleLeftIcon className="h-5 w-5 mr-2" />
-                            {post.comments.length} Comments
-                          </button>
-                        </div>
-                      </div>
+            {/* Posts */}
+            <div className="space-y-6">
+              {filteredPosts.map((post) => (
+                <motion.div
+                  key={post.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`p-6 rounded-xl shadow-lg transition-colors ${
+                    isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-xl font-semibold">{post.title}</h3>
+                      <p className="text-sm opacity-75">
+                        by {post.author.username} in {categories.find((c) => c.id === post.category.id)?.name}
+                      </p>
                     </div>
-                  </motion.div>
-                ))}
-              </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleVote(post.id, true)}
+                        className={`p-2 rounded-full transition-colors ${
+                          post.upvotedBy.includes(currentUser?.id || '') ? 'bg-green-500' : 'bg-gray-200'
+                        }`}
+                      >
+                        <ArrowUpIcon className="h-5 w-5" />
+                      </button>
+                      <span className="font-medium">{post.upvotes - post.downvotes}</span>
+                      <button
+                        onClick={() => handleVote(post.id, false)}
+                        className={`p-2 rounded-full transition-colors ${
+                          post.downvotedBy.includes(currentUser?.id || '') ? 'bg-red-500' : 'bg-gray-200'
+                        }`}
+                      >
+                        <ArrowDownIcon className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+                  <p className="mb-4">{post.content}</p>
+                  <div className="flex justify-between items-center">
+                    <button
+                      onClick={() => {
+                        setSelectedPost(post);
+                        setShowCommentModal(true);
+                      }}
+                      className="flex items-center space-x-1 text-blue-500 hover:text-blue-600"
+                    >
+                      <ChatBubbleLeftIcon className="h-5 w-5" />
+                      <span>{post.comments.length} comments</span>
+                    </button>
+                    <div className="flex space-x-2">
+                      {post.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-
-            {/* Top Contributors */}
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-text">Top Contributors</h2>
-                <button className="minimal-button">View All</button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Contributor cards will go here */}
-              </div>
-            </div>
-          </div>
-        </main>
+          </main>
+        </div>
 
         {/* Create Post Modal */}
         {showCreatePostModal && (
@@ -502,7 +589,7 @@ const App: React.FC = () => {
                     className="subtle-input"
                   >
                     {categories.map(category => (
-                      <option key={category.id} value={category.name}>
+                      <option key={category.id} value={category.id}>
                         {category.name}
                       </option>
                     ))}
