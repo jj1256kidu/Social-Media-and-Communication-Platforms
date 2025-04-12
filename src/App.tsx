@@ -163,23 +163,25 @@ const App: React.FC = () => {
 
   return (
     <Router>
-      <div className="min-h-screen bg-cyber-black text-gray-100">
+      <div className="min-h-screen bg-background">
         {/* Header */}
-        <header className="glass-card sticky top-0 z-50">
+        <header className="modern-nav sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <Link to="/" className="cyber-text text-2xl font-bold hover-glow">
+            <Link to="/" className="text-2xl font-bold text-gradient">
               Future Forum
             </Link>
             <div className="flex items-center space-x-4">
               {currentUser ? (
                 <div className="flex items-center space-x-2">
-                  <span className="text-neon-blue">{currentUser.avatar}</span>
-                  <span className="text-neon-blue">{currentUser.username}</span>
+                  <div className="avatar">
+                    {currentUser.avatar}
+                  </div>
+                  <span className="font-medium">{currentUser.username}</span>
                 </div>
               ) : (
                 <button
                   onClick={() => handleLogin('Guest')}
-                  className="glass-button"
+                  className="minimal-button"
                 >
                   <UserIcon className="h-5 w-5 mr-2" />
                   Login
@@ -196,16 +198,16 @@ const App: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                 {/* Sidebar */}
                 <aside className="md:col-span-1">
-                  <div className="glass-card p-4">
-                    <h2 className="text-xl font-bold mb-4 text-neon-blue">Categories</h2>
+                  <div className="modern-card p-4">
+                    <h2 className="text-lg font-semibold mb-4">Categories</h2>
                     <ul className="space-y-2">
                       {categories.map(category => (
                         <li key={category.id}>
                           <Link
                             to={`/category/${category.id}`}
-                            className="flex items-center space-x-2 p-2 rounded-lg hover:bg-cyber-dark/50 transition-colors"
+                            className="flex items-center space-x-2 p-2 rounded-lg hover:bg-primary/5 transition-colors"
                           >
-                            <span>{category.icon}</span>
+                            <span className="text-lg">{category.icon}</span>
                             <span>{category.name}</span>
                           </Link>
                         </li>
@@ -216,13 +218,13 @@ const App: React.FC = () => {
 
                 {/* Content Area */}
                 <div className="md:col-span-3">
-                  <div className="glass-card p-6">
+                  <div className="modern-card p-6">
                     <div className="flex justify-between items-center mb-6">
-                      <h1 className="text-2xl font-bold text-neon-blue">Latest Posts</h1>
+                      <h1 className="text-xl font-semibold">Latest Posts</h1>
                       {currentUser && (
                         <button
                           onClick={() => setShowCreatePostModal(true)}
-                          className="glass-button"
+                          className="minimal-button"
                         >
                           <PlusIcon className="h-5 w-5 mr-2" />
                           Create Post
@@ -236,41 +238,43 @@ const App: React.FC = () => {
                           key={post.id}
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="glass-card p-4"
+                          className="modern-card p-4 hover-lift"
                         >
                           <div className="flex items-start space-x-4">
                             <div className="flex flex-col items-center">
                               <button
                                 onClick={() => handleVote(post.id, true)}
-                                className="text-neon-blue hover:text-neon-green"
+                                className="vote-button"
                               >
-                                <ArrowUpIcon className="h-6 w-6" />
+                                <ArrowUpIcon className="h-5 w-5" />
                               </button>
-                              <span className="text-neon-blue">{post.upvotes - post.downvotes}</span>
+                              <span className="font-medium my-1">{post.upvotes - post.downvotes}</span>
                               <button
                                 onClick={() => handleVote(post.id, false)}
-                                className="text-neon-blue hover:text-neon-pink"
+                                className="vote-button"
                               >
-                                <ArrowDownIcon className="h-6 w-6" />
+                                <ArrowDownIcon className="h-5 w-5" />
                               </button>
                             </div>
                             <div className="flex-1">
-                              <h2 className="text-xl font-bold text-neon-blue">{post.title}</h2>
-                              <p className="text-gray-300 mt-2">{post.content}</p>
-                              <div className="flex items-center mt-4 text-sm text-gray-400">
-                                <span className="flex items-center">
-                                  {post.author.avatar}
-                                  <span className="ml-2">{post.author.username}</span>
-                                </span>
+                              <h2 className="text-lg font-semibold">{post.title}</h2>
+                              <p className="text-text-light mt-2">{post.content}</p>
+                              <div className="flex items-center mt-4 text-sm text-text-light">
+                                <div className="flex items-center">
+                                  <div className="avatar mr-2">
+                                    {post.author.avatar}
+                                  </div>
+                                  <span>{post.author.username}</span>
+                                </div>
                                 <span className="mx-2">•</span>
-                                <span>{post.category}</span>
+                                <span className="category-pill">{post.category}</span>
                                 <span className="mx-2">•</span>
                                 <span>{post.createdAt.toLocaleDateString()}</span>
                               </div>
-                              <div className="mt-4">
+                              <div className="comment-section">
                                 <button
                                   onClick={() => {/* Open comments section */}}
-                                  className="flex items-center text-neon-blue hover:text-neon-green"
+                                  className="flex items-center text-primary hover:text-primary-dark"
                                 >
                                   <ChatBubbleLeftIcon className="h-5 w-5 mr-2" />
                                   {post.comments.length} Comments
@@ -292,33 +296,35 @@ const App: React.FC = () => {
         {/* Create Post Modal */}
         {showCreatePostModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-            <div className="glass-card p-6 w-full max-w-2xl">
-              <h2 className="text-2xl font-bold text-neon-blue mb-4">Create New Post</h2>
+            <div className="modern-card p-6 w-full max-w-2xl">
+              <h2 className="text-xl font-semibold mb-4">Create New Post</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-neon-blue mb-2">Title</label>
+                  <label className="block text-sm font-medium mb-2">Title</label>
                   <input
                     type="text"
                     value={newPostTitle}
                     onChange={(e) => setNewPostTitle(e.target.value)}
-                    className="w-full bg-cyber-dark border border-neon-blue/30 rounded-lg px-4 py-2 text-white"
+                    className="subtle-input"
+                    placeholder="Enter post title"
                   />
                 </div>
                 <div>
-                  <label className="block text-neon-blue mb-2">Content</label>
+                  <label className="block text-sm font-medium mb-2">Content</label>
                   <textarea
                     value={newPostContent}
                     onChange={(e) => setNewPostContent(e.target.value)}
-                    className="w-full bg-cyber-dark border border-neon-blue/30 rounded-lg px-4 py-2 text-white"
+                    className="subtle-input"
                     rows={4}
+                    placeholder="Write your post content here..."
                   />
                 </div>
                 <div>
-                  <label className="block text-neon-blue mb-2">Category</label>
+                  <label className="block text-sm font-medium mb-2">Category</label>
                   <select
                     value={newPostCategory}
                     onChange={(e) => setNewPostCategory(e.target.value)}
-                    className="w-full bg-cyber-dark border border-neon-blue/30 rounded-lg px-4 py-2 text-white"
+                    className="subtle-input"
                   >
                     {categories.map(category => (
                       <option key={category.id} value={category.name}>
@@ -330,13 +336,13 @@ const App: React.FC = () => {
                 <div className="flex justify-end space-x-4">
                   <button
                     onClick={() => setShowCreatePostModal(false)}
-                    className="glass-button"
+                    className="px-4 py-2 rounded-lg font-medium text-text-light hover:text-text"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleCreatePostSubmit}
-                    className="glass-button"
+                    className="minimal-button"
                     disabled={!newPostTitle || !newPostContent}
                   >
                     Post
