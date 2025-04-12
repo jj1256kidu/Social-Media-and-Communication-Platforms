@@ -757,6 +757,9 @@ elif st.session_state.current_user:
     # Add theme switcher
     theme_switcher()
     
+    # Add modal component
+    add_modal_component()
+    
     # Top Navigation Bar
     search_col, profile_col = st.columns([3, 1])
     with search_col:
@@ -835,78 +838,112 @@ elif st.session_state.current_user:
             <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_tll0j4bb.json" 
                           background="transparent" speed="1" 
                           style="width: 60px; height: 60px; cursor: pointer;" 
-                          onclick="document.dispatchEvent(new CustomEvent('create_thread'))" 
+                          onclick="openModal()" 
                           loop autoplay></lottie-player>
         </div>
+        <script>
+            document.addEventListener('create_thread', function(e) {
+                // Handle the thread creation event
+                const { title, content } = e.detail;
+                // You can add additional handling here if needed
+            });
+        </script>
     """, height=0)
 
-    # Create New Post Form with enhanced UI
-    if st.session_state.get('show_new_post_form', False):
-        with st.form("new_post_form", clear_on_submit=True):
-            st.markdown("### 📝 Create a New Thread")
-            title = st.text_input("Thread Title", placeholder="Enter an interesting title...")
-            content = st.text_area("Content", placeholder="Share your thoughts...", height=150)
-            category = st.selectbox("Category", 
-                                  options=[c['name'] for c in st.session_state.categories],
-                                  format_func=lambda x: x.split()[-1])
-            
-            col1, col2 = st.columns([1, 1])
-            with col1:
-                if st.form_submit_button("Post Thread", use_container_width=True):
-                    if title and content:
-                        category_id = next(c['id'] for c in st.session_state.categories 
-                                        if c['name'] == category)
-                        create_new_post(category_id, title, content)
-                        trigger_confetti()
-                        st.success("Thread posted successfully!")
-                        st.session_state.show_new_post_form = False
-                        st.rerun()
-            with col2:
-                if st.form_submit_button("Cancel", use_container_width=True):
-                    st.session_state.show_new_post_form = False
-                    st.rerun()
-
-# Add theme switcher component
-def theme_switcher():
+# Add modal component
+def add_modal_component():
     components.html("""
-        <div class="theme-switcher">
-            <select onchange="changeTheme(this.value)">
-                <option value="pastel">🌈 Pastel</option>
-                <option value="sunset">🌅 Sunset</option>
-                <option value="space">🪐 Space</option>
-            </select>
+        <div id="newThreadModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h3>📝 Create a New Thread</h3>
+                <input id="threadTitle" type="text" placeholder="Thread Title" style="width:100%; padding:10px; margin:10px 0;" />
+                <textarea id="threadContent" placeholder="Your content here..." style="width:100%; height:100px; padding:10px;"></textarea>
+                <button onclick="postThread()" style="margin-top:10px; padding:10px 20px; background:#2f54eb; color:white; border:none; border-radius:8px; cursor:pointer;">Post</button>
+            </div>
         </div>
         <script>
-            function changeTheme(value) {
-                let body = document.querySelector('.stApp');
-                if (value === 'pastel') {
-                    body.style.background = 'linear-gradient(120deg, #f9f9f9, #e0f7fa, #d0e1f9)';
-                } else if (value === 'sunset') {
-                    body.style.background = 'linear-gradient(120deg, #fbc2eb, #a6c1ee)';
-                } else if (value === 'space') {
-                    body.style.background = 'linear-gradient(120deg, #0f2027, #203a43, #2c5364)';
+            function openModal() {
+                document.getElementById("newThreadModal").style.display = "block";
+            }
+            function closeModal() {
+                document.getElementById("newThreadModal").style.display = "none";
+            }
+            function postThread() {
+                const title = document.getElementById("threadTitle").value;
+                const content = document.getElementById("threadContent").value;
+                if (title && content) {
+                    // Trigger Streamlit to create new post
+                    const event = new CustomEvent('create_thread', { 
+                        detail: { title, content }
+                    });
+                    document.dispatchEvent(event);
+                    closeModal();
                 }
-                body.style.backgroundSize = '400% 400%';
-                body.style.animation = 'gradientBG 15s ease infinite';
+            }
+            // Close modal when clicking outside
+            window.onclick = function(event) {
+                const modal = document.getElementById("newThreadModal");
+                if (event.target == modal) {
+                    closeModal();
+                }
             }
         </script>
-    """, height=0)
-
-# Add confetti component
-def trigger_confetti():
-    components.html("""
-        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-        <script>
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-        </script>
-    """, height=0)
-
-# Add particles.js background
-def add_particles_background():
-    components.html("""
-        <div id="particles-js"></div>
-        <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-        <script>
-            particlesJS.load('particles-js', 'https://raw.githubusercontent.com/VincentGarreau/particles.js/master/demo/particles.json');
-        </script>
+        <style>
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1001;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgba(0, 0, 0, 0.4);
+                backdrop-filter: blur(5px);
+            }
+            .modal-content {
+                background-color: #1E1E2E;
+                margin: 10% auto;
+                padding: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 15px;
+                width: 80%;
+                max-width: 500px;
+                animation: slideIn 0.3s ease;
+            }
+            .close {
+                color: #aaa;
+                float: right;
+                font-size: 28px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+            .close:hover {
+                color: #fff;
+            }
+            @keyframes slideIn {
+                from { transform: translateY(-50px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            #threadTitle, #threadContent {
+                background: rgba(45, 45, 61, 0.5);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                color: white;
+                font-family: 'Poppins', sans-serif;
+            }
+            #threadTitle:focus, #threadContent:focus {
+                outline: none;
+                border-color: #2f54eb;
+                box-shadow: 0 0 10px rgba(47, 84, 235, 0.3);
+            }
+            button {
+                transition: all 0.3s ease;
+            }
+            button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(47, 84, 235, 0.3);
+            }
+        </style>
     """, height=0) 
