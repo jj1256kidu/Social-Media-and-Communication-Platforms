@@ -13,9 +13,21 @@
   --border: #e2e8f0;
 }
 
+.dark {
+  --primary: #3b82f6;
+  --primary-light: #60a5fa;
+  --primary-dark: #2563eb;
+  --background: #0f172a;
+  --surface: #1e293b;
+  --text: #f8fafc;
+  --text-light: #94a3b8;
+  --border: #334155;
+}
+
 body {
   @apply bg-background text-text;
   font-family: 'Inter', sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Modern Card */
@@ -40,7 +52,7 @@ body {
 .subtle-input {
   @apply w-full px-4 py-2 rounded-lg border border-border
          focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
-         transition-all duration-300;
+         transition-all duration-300 bg-surface text-text;
 }
 
 /* Modern Navigation */
@@ -52,13 +64,17 @@ body {
 .category-pill {
   @apply px-3 py-1 rounded-full text-sm font-medium
          bg-primary/10 text-primary hover:bg-primary/20
-         transition-all duration-300;
+         transition-all duration-300 flex items-center;
 }
 
 /* Vote Button */
 .vote-button {
   @apply p-2 rounded-lg hover:bg-primary/10
          transition-all duration-300;
+}
+
+.vote-button:hover {
+  transform: scale(1.1);
 }
 
 /* Comment Section */
@@ -141,7 +157,7 @@ body {
 .login-input {
   @apply px-4 py-2 bg-surface/80 backdrop-blur-sm rounded-lg border border-border
          focus:outline-none focus:ring-2 focus:ring-primary
-         transition-all duration-300 w-48;
+         transition-all duration-300 w-48 text-text;
 }
 
 .login-button {
@@ -196,4 +212,93 @@ body {
 
 .button-hover:hover::after {
   transform: translateX(-100%);
+}
+
+/* Dark Mode Transitions */
+.dark .modern-card {
+  @apply shadow-lg;
+}
+
+.dark .login-input {
+  @apply bg-surface/50;
+}
+
+/* Voice Input Animation */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.voice-active {
+  animation: pulse 1.5s infinite;
+}
+
+/* Trending Badge */
+.trending-badge {
+  @apply bg-gradient-to-r from-primary to-primary-light text-white
+         px-2 py-1 rounded-full text-xs font-medium;
+}
+
+/* User Level Badge */
+.level-badge {
+  @apply bg-primary/10 text-primary px-2 py-1 rounded-full
+         text-xs font-medium;
+}
+
+/* Tag Styles */
+.tag {
+  @apply bg-primary/5 text-primary px-2 py-1 rounded-full
+         text-xs font-medium hover:bg-primary/10 transition-colors;
+}
+
+/* Collapsible Comments */
+.collapsible {
+  @apply transition-all duration-300;
+}
+
+.collapsible.collapsed {
+  @apply max-h-0 overflow-hidden;
+}
+
+/* AI Summary */
+.ai-summary {
+  @apply bg-primary/5 border-l-4 border-primary pl-4 py-2
+         text-sm text-text-light italic;
+}
+
+/* Typing Indicator */
+.typing-indicator {
+  @apply flex items-center space-x-1;
+}
+
+.typing-indicator span {
+  @apply w-2 h-2 bg-primary rounded-full;
+  animation: typing 1s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
 } 
