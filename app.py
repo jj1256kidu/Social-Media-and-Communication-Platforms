@@ -396,6 +396,124 @@ st.markdown("""
         color: #666;
         font-size: 14px;
     }
+    /* Top Navigation Bar */
+    .top-nav {
+        background: rgba(30, 30, 46, 0.9);
+        backdrop-filter: blur(10px);
+        padding: 15px 20px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .search-bar {
+        background: rgba(45, 45, 61, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 8px 15px;
+        width: 300px;
+        color: white;
+    }
+    .profile-badge {
+        background: linear-gradient(45deg, #00C6FF, #0072FF);
+        padding: 8px 15px;
+        border-radius: 20px;
+        color: white;
+        text-decoration: none;
+    }
+    
+    /* Categories Section */
+    .categories-section {
+        background: rgba(30, 30, 46, 0.8);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .category-button {
+        background: rgba(45, 45, 61, 0.5);
+        border: none;
+        border-radius: 15px;
+        padding: 10px 20px;
+        margin: 0 10px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .category-button:hover {
+        background: linear-gradient(45deg, #00C6FF, #0072FF);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 198, 255, 0.3);
+    }
+    
+    /* Thread Cards */
+    .thread-card {
+        background: rgba(30, 30, 46, 0.8);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+    .thread-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 198, 255, 0.2);
+    }
+    .thread-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 10px;
+    }
+    .thread-preview {
+        color: #999;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+    .thread-meta {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: #666;
+        font-size: 14px;
+    }
+    .upvote-button {
+        background: rgba(45, 45, 61, 0.5);
+        border: none;
+        border-radius: 20px;
+        padding: 5px 10px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .upvote-button:hover {
+        background: linear-gradient(45deg, #00C6FF, #0072FF);
+        transform: scale(1.05);
+    }
+    
+    /* Create Thread Button */
+    .create-thread-button {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: linear-gradient(45deg, #00C6FF, #0072FF);
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0, 198, 255, 0.3);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    .create-thread-button:hover {
+        transform: translateY(-3px) rotate(180deg);
+        box-shadow: 0 8px 25px rgba(0, 198, 255, 0.4);
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -485,7 +603,7 @@ if not st.session_state.current_user:
                     st_lottie(lottie_login_success, height=80, key="login_success")
                 st.balloons()
                 time.sleep(1)
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.error("Invalid credentials")
                 st.markdown("""
@@ -506,166 +624,443 @@ if not st.session_state.current_user:
 
 # Main App (After Login)
 else:
-    # Header
-    st.title("ForumHub")
-    st.markdown("---")
+    # Add new styles for the modern UI
+    st.markdown("""
+    <style>
+    /* Top Navigation Bar */
+    .top-nav {
+        background: rgba(30, 30, 46, 0.9);
+        backdrop-filter: blur(10px);
+        padding: 15px 20px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .search-bar {
+        background: rgba(45, 45, 61, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 8px 15px;
+        width: 300px;
+        color: white;
+    }
+    .profile-badge {
+        background: linear-gradient(45deg, #00C6FF, #0072FF);
+        padding: 8px 15px;
+        border-radius: 20px;
+        color: white;
+        text-decoration: none;
+    }
     
-    # Sidebar
-    with st.sidebar:
-        st.markdown('<div class="avatar-ring"></div>', unsafe_allow_html=True)
-        st.header(f"👤 {st.session_state.current_user['username']}")
-        st.markdown(f"**Level:** {st.session_state.current_user['level']}")
-        st.markdown(f"**Karma:** {st.session_state.current_user['karma']}")
-        st.markdown(f"**Threads:** {st.session_state.current_user['threads']}")
-        st.markdown(f"**Comments:** {st.session_state.current_user['comments']}")
-        
-        if st.button("Logout"):
-            st.session_state.current_user = None
-            st.experimental_rerun()
+    /* Categories Section */
+    .categories-section {
+        background: rgba(30, 30, 46, 0.8);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .category-button {
+        background: rgba(45, 45, 61, 0.5);
+        border: none;
+        border-radius: 15px;
+        padding: 10px 20px;
+        margin: 0 10px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .category-button:hover {
+        background: linear-gradient(45deg, #00C6FF, #0072FF);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 198, 255, 0.3);
+    }
     
-    # Search and Filters
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        search_query = st.text_input("🔍 Search posts...", key="search")
-    with col2:
-        filter_option = st.selectbox("Filter by", ["Recent", "Trending"])
+    /* Thread Cards */
+    .thread-card {
+        background: rgba(30, 30, 46, 0.8);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+    .thread-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 198, 255, 0.2);
+    }
+    .thread-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 10px;
+    }
+    .thread-preview {
+        color: #999;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+    .thread-meta {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: #666;
+        font-size: 14px;
+    }
+    .upvote-button {
+        background: rgba(45, 45, 61, 0.5);
+        border: none;
+        border-radius: 20px;
+        padding: 5px 10px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .upvote-button:hover {
+        background: linear-gradient(45deg, #00C6FF, #0072FF);
+        transform: scale(1.05);
+    }
     
-    # Function to create new post
-    def create_new_post(category_id, title, content):
-        new_post = {
-            'id': str(random.randint(1000, 9999)),
-            'category_id': category_id,
-            'title': title,
-            'content': content,
-            'author': st.session_state.current_user['username'],
-            'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            'upvotes': 0,
-            'downvotes': 0,
-            'comments': []
-        }
-        st.session_state.posts.append(new_post)
-        st.session_state.show_new_post_form = False
-        st.session_state.selected_category = None
+    /* Create Thread Button */
+    .create-thread-button {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: linear-gradient(45deg, #00C6FF, #0072FF);
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0, 198, 255, 0.3);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    .create-thread-button:hover {
+        transform: translateY(-3px) rotate(180deg);
+        box-shadow: 0 8px 25px rgba(0, 198, 255, 0.4);
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-    # New Post Form
-    if st.session_state.show_new_post_form and st.session_state.selected_category:
-        selected_cat = next((cat for cat in st.session_state.categories if cat['id'] == st.session_state.selected_category), None)
-        if selected_cat:
-            st.markdown(f"### New Post in {selected_cat['name']}")
-            with st.form(f"category_post_form_{st.session_state.selected_category}"):
-                post_title = st.text_input("Title", placeholder="Enter your post title")
-                post_content = st.text_area("Content", placeholder="Write your post content here...")
-                col1, col2 = st.columns([1, 4])
-                with col1:
-                    submit_post = st.form_submit_button("Create Post")
-                with col2:
-                    if st.form_submit_button("Cancel"):
-                        st.session_state.show_new_post_form = False
-                        st.session_state.selected_category = None
-                        st.experimental_rerun()
-                
-                if submit_post and post_title and post_content:
-                    create_new_post(st.session_state.selected_category, post_title, post_content)
-                    st.success("Post created successfully!")
-                    time.sleep(1)
-                    st.experimental_rerun()
+    # Top Navigation Bar
+    st.markdown("""
+        <div class="top-nav">
+            <input type="text" class="search-bar" placeholder="🔍 Search threads...">
+            <a href="#" class="profile-badge">👤 @testuser</a>
+        </div>
+    """, unsafe_allow_html=True)
 
-    # Display Categories
-    else:
-        st.markdown("### Categories")
-        for category in st.session_state.categories:
-            st.markdown(f"""
-                <div class="category-card">
-                    <div class="category-title">
-                        {category['icon']} {category['name']}
-                        <a href="#" class="new-post-btn" onclick="
-                            document.dispatchEvent(new CustomEvent('new_post_click', {{
-                                detail: {{ category_id: '{category['id']}' }}
-                            }}))">
-                            ✏️ New Post
-                        </a>
-                    </div>
-                    <div class="category-description">{category['description']}</div>
-                </div>
-            """, unsafe_allow_html=True)
+    # Categories Section
+    st.markdown("""
+        <div class="categories-section">
+            <button class="category-button">💻 Tech</button>
+            <button class="category-button">🎭 Humor</button>
+            <button class="category-button">🧠 Life</button>
+            <button class="category-button">🎓 Education</button>
+        </div>
+    """, unsafe_allow_html=True)
 
-            # Handle New Post button click
-            if st.button("New Post", key=f"new_post_{category['id']}", type="primary"):
-                st.session_state.show_new_post_form = True
-                st.session_state.selected_category = category['id']
-                st.experimental_rerun()
+    # Trending Threads Section
+    st.markdown("### 🔥 Trending Threads")
 
-            # Display posts for this category
-            category_posts = [post for post in st.session_state.posts if post['category_id'] == category['id']]
-            if category_posts:
-                for post in category_posts:
-                    with st.container():
-                        st.markdown(f"**{post['title']}** - by {post['author']}")
-                        st.markdown(post['content'])
-                        col1, col2, col3 = st.columns([1, 1, 8])
-                        with col1:
-                            st.button("👍", key=f"upvote_{post['id']}")
-                        with col2:
-                            st.button("👎", key=f"downvote_{post['id']}")
-                        with col3:
-                            st.markdown(f"Votes: {post['upvotes'] - post['downvotes']}")
-            else:
-                st.markdown("*No posts yet in this category*")
-            
-            st.markdown("---")
-
-    # Posts
-    st.header("Posts")
+    # Display posts with new design
     if st.session_state.posts:
-        for post in st.session_state.posts:
+        sorted_posts = sorted(st.session_state.posts, 
+                            key=lambda x: (x.get('upvotes', 0) - x.get('downvotes', 0)), 
+                            reverse=True)
+        for post in sorted_posts[:5]:  # Show top 5 trending posts
             st.markdown(f"""
-            <div class="post-card">
-                <h3>{post['title']}</h3>
-                <p>{post['content']}</p>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <button class="vote-button">⬆️ {post['upvotes']}</button>
-                    <button class="vote-button">⬇️ {post['downvotes']}</button>
-                    <span>💬 {len(post['comments'])} comments</span>
-                    <span style="color: #00C6FF;">{post['author']}</span>
-                    <span style="color: #666;">{post['created_at']}</span>
+                <div class="thread-card">
+                    <div class="thread-title">📌 {post['title']}</div>
+                    <div class="thread-preview">{post['content'][:150]}...</div>
+                    <div class="thread-meta">
+                        <button class="upvote-button">🔼 {post['upvotes']}</button>
+                        <span>💬 {len(post.get('comments', []))} Comments</span>
+                        <span>🧑‍💻 {post['author']}</span>
+                    </div>
                 </div>
-            </div>
             """, unsafe_allow_html=True)
     else:
-        st.info("No posts yet. Be the first to create one!")
-    
-    # Create Post
-    if st.session_state.current_user:
-        with st.expander("➕ Create New Post", expanded=False):
-            with st.form("main_post_form"):
-                title = st.text_input("Title")
-                content = st.text_area("Content", placeholder="Start typing your thoughts... |")
-                if content:
-                    progress = min(len(content) / 500 * 100, 100)
-                    st.markdown(f"""
-                    <div class="progress-bar">
-                        <div class="progress-bar-fill" style="width: {progress}%"></div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                category = st.selectbox("Category", [c['name'] for c in st.session_state.categories])
-                submitted = st.form_submit_button("Post")
-                
-                if submitted and title and content:
+        st.info("No threads yet. Be the first to start a discussion!")
+
+    # Floating Create Thread Button
+    st.markdown("""
+        <button class="create-thread-button" onclick="document.dispatchEvent(new CustomEvent('create_thread'))">
+            ➕
+        </button>
+    """, unsafe_allow_html=True)
+
+    # Create New Thread Form (in expander)
+    with st.expander("", expanded=False):
+        with st.form("create_thread_form", clear_on_submit=True):
+            title = st.text_input("Thread Title", placeholder="Enter an interesting title...")
+            content = st.text_area("Content", placeholder="Share your thoughts...")
+            category = st.selectbox("Category", 
+                                  options=[c['name'] for c in st.session_state.categories],
+                                  format_func=lambda x: x.split()[-1])  # Show only the category name without emoji
+            
+            if st.form_submit_button("Post Thread"):
+                if title and content:
+                    category_id = next(c['id'] for c in st.session_state.categories if c['name'] == category)
+                    create_new_post(category_id, title, content)
+                    st.success("Thread posted successfully!")
                     if lottie_send:
-                        st_lottie(lottie_send, height=100, key="send")
-                    new_post = {
-                        'id': str(random.randint(1, 1000)),
-                        'title': title,
-                        'content': content,
-                        'author': st.session_state.current_user['username'],
-                        'category': category,
-                        'upvotes': 0,
-                        'downvotes': 0,
-                        'comments': [],
-                        'created_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    }
-                    st.session_state.posts.append(new_post)
-                    st.success("Post created successfully!")
-                    st.balloons()
-                    time.sleep(2)
-                    st.experimental_rerun() 
+                        st_lottie(lottie_send, height=80, key="send")
+                    time.sleep(1)
+                    st.rerun()
+
+    # Handle category filtering
+    if 'selected_category' in st.session_state and st.session_state.selected_category:
+        filtered_posts = [post for post in st.session_state.posts 
+                         if post['category_id'] == st.session_state.selected_category]
+        if filtered_posts:
+            st.markdown(f"### Posts in {next(c['name'] for c in st.session_state.categories if c['id'] == st.session_state.selected_category)}")
+            for post in filtered_posts:
+                st.markdown(f"""
+                    <div class="thread-card">
+                        <div class="thread-title">📌 {post['title']}</div>
+                        <div class="thread-preview">{post['content'][:150]}...</div>
+                        <div class="thread-meta">
+                            <button class="upvote-button">🔼 {post['upvotes']}</button>
+                            <span>💬 {len(post.get('comments', []))} Comments</span>
+                            <span>🧑‍💻 {post['author']}</span>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
+
+# Function to create new post
+def create_new_post(category_id, title, content):
+    new_post = {
+        'id': str(random.randint(1000, 9999)),
+        'category_id': category_id,
+        'title': title,
+        'content': content,
+        'author': st.session_state.current_user['username'],
+        'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'upvotes': 0,
+        'downvotes': 0,
+        'comments': []
+    }
+    if 'posts' not in st.session_state:
+        st.session_state.posts = []
+    st.session_state.posts.append(new_post)
+    st.session_state.show_new_post_form = False
+    st.session_state.selected_category = None
+
+# Main App (After Login)
+else:
+    # Add new styles for the modern UI
+    st.markdown("""
+    <style>
+    /* Top Navigation Bar */
+    .top-nav {
+        background: rgba(30, 30, 46, 0.9);
+        backdrop-filter: blur(10px);
+        padding: 15px 20px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .search-bar {
+        background: rgba(45, 45, 61, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 8px 15px;
+        width: 300px;
+        color: white;
+    }
+    .profile-badge {
+        background: linear-gradient(45deg, #00C6FF, #0072FF);
+        padding: 8px 15px;
+        border-radius: 20px;
+        color: white;
+        text-decoration: none;
+    }
+    
+    /* Categories Section */
+    .categories-section {
+        background: rgba(30, 30, 46, 0.8);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .category-button {
+        background: rgba(45, 45, 61, 0.5);
+        border: none;
+        border-radius: 15px;
+        padding: 10px 20px;
+        margin: 0 10px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .category-button:hover {
+        background: linear-gradient(45deg, #00C6FF, #0072FF);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 198, 255, 0.3);
+    }
+    
+    /* Thread Cards */
+    .thread-card {
+        background: rgba(30, 30, 46, 0.8);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+    .thread-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 198, 255, 0.2);
+    }
+    .thread-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 10px;
+    }
+    .thread-preview {
+        color: #999;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+    .thread-meta {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: #666;
+        font-size: 14px;
+    }
+    .upvote-button {
+        background: rgba(45, 45, 61, 0.5);
+        border: none;
+        border-radius: 20px;
+        padding: 5px 10px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .upvote-button:hover {
+        background: linear-gradient(45deg, #00C6FF, #0072FF);
+        transform: scale(1.05);
+    }
+    
+    /* Create Thread Button */
+    .create-thread-button {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: linear-gradient(45deg, #00C6FF, #0072FF);
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0, 198, 255, 0.3);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    .create-thread-button:hover {
+        transform: translateY(-3px) rotate(180deg);
+        box-shadow: 0 8px 25px rgba(0, 198, 255, 0.4);
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # Top Navigation Bar
+    st.markdown("""
+        <div class="top-nav">
+            <input type="text" class="search-bar" placeholder="🔍 Search threads...">
+            <a href="#" class="profile-badge">👤 @testuser</a>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # Categories Section
+    st.markdown("""
+        <div class="categories-section">
+            <button class="category-button">💻 Tech</button>
+            <button class="category-button">🎭 Humor</button>
+            <button class="category-button">🧠 Life</button>
+            <button class="category-button">🎓 Education</button>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # Trending Threads Section
+    st.markdown("### 🔥 Trending Threads")
+
+    # Display posts with new design
+    if st.session_state.posts:
+        sorted_posts = sorted(st.session_state.posts, 
+                            key=lambda x: (x.get('upvotes', 0) - x.get('downvotes', 0)), 
+                            reverse=True)
+        for post in sorted_posts[:5]:  # Show top 5 trending posts
+            st.markdown(f"""
+                <div class="thread-card">
+                    <div class="thread-title">📌 {post['title']}</div>
+                    <div class="thread-preview">{post['content'][:150]}...</div>
+                    <div class="thread-meta">
+                        <button class="upvote-button">🔼 {post['upvotes']}</button>
+                        <span>💬 {len(post.get('comments', []))} Comments</span>
+                        <span>🧑‍💻 {post['author']}</span>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.info("No threads yet. Be the first to start a discussion!")
+
+    # Floating Create Thread Button
+    st.markdown("""
+        <button class="create-thread-button" onclick="document.dispatchEvent(new CustomEvent('create_thread'))">
+            ➕
+        </button>
+    """, unsafe_allow_html=True)
+
+    # Create New Thread Form (in expander)
+    with st.expander("", expanded=False):
+        with st.form("create_thread_form", clear_on_submit=True):
+            title = st.text_input("Thread Title", placeholder="Enter an interesting title...")
+            content = st.text_area("Content", placeholder="Share your thoughts...")
+            category = st.selectbox("Category", 
+                                  options=[c['name'] for c in st.session_state.categories],
+                                  format_func=lambda x: x.split()[-1])  # Show only the category name without emoji
+            
+            if st.form_submit_button("Post Thread"):
+                if title and content:
+                    category_id = next(c['id'] for c in st.session_state.categories if c['name'] == category)
+                    create_new_post(category_id, title, content)
+                    st.success("Thread posted successfully!")
+                    if lottie_send:
+                        st_lottie(lottie_send, height=80, key="send")
+                    time.sleep(1)
+                    st.rerun()
+
+    # Handle category filtering
+    if 'selected_category' in st.session_state and st.session_state.selected_category:
+        filtered_posts = [post for post in st.session_state.posts 
+                         if post['category_id'] == st.session_state.selected_category]
+        if filtered_posts:
+            st.markdown(f"### Posts in {next(c['name'] for c in st.session_state.categories if c['id'] == st.session_state.selected_category)}")
+            for post in filtered_posts:
+                st.markdown(f"""
+                    <div class="thread-card">
+                        <div class="thread-title">📌 {post['title']}</div>
+                        <div class="thread-preview">{post['content'][:150]}...</div>
+                        <div class="thread-meta">
+                            <button class="upvote-button">🔼 {post['upvotes']}</button>
+                            <span>💬 {len(post.get('comments', []))} Comments</span>
+                            <span>🧑‍💻 {post['author']}</span>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True) 
