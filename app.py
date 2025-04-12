@@ -92,6 +92,51 @@ if 'show_new_post_form' not in st.session_state:
 if 'selected_category' not in st.session_state:
     st.session_state.selected_category = None
 
+# Add particles.js background
+def add_particles_background():
+    components.html("""
+        <div id="particles-js"></div>
+        <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+        <script>
+            particlesJS.load('particles-js', 'https://raw.githubusercontent.com/VincentGarreau/particles.js/master/demo/particles.json');
+        </script>
+    """, height=0)
+
+# Add theme switcher component
+def theme_switcher():
+    components.html("""
+        <div class="theme-switcher">
+            <select onchange="changeTheme(this.value)">
+                <option value="pastel">🌈 Pastel</option>
+                <option value="sunset">🌅 Sunset</option>
+                <option value="space">🪐 Space</option>
+            </select>
+        </div>
+        <script>
+            function changeTheme(value) {
+                let body = document.querySelector('.stApp');
+                if (value === 'pastel') {
+                    body.style.background = 'linear-gradient(120deg, #f9f9f9, #e0f7fa, #d0e1f9)';
+                } else if (value === 'sunset') {
+                    body.style.background = 'linear-gradient(120deg, #fbc2eb, #a6c1ee)';
+                } else if (value === 'space') {
+                    body.style.background = 'linear-gradient(120deg, #0f2027, #203a43, #2c5364)';
+                }
+                body.style.backgroundSize = '400% 400%';
+                body.style.animation = 'gradientBG 15s ease infinite';
+            }
+        </script>
+    """, height=0)
+
+# Add confetti component
+def trigger_confetti():
+    components.html("""
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+        <script>
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        </script>
+    """, height=0)
+
 # Function to handle category selection
 def handle_category_selection(category_id):
     st.session_state.selected_category = category_id
@@ -169,6 +214,14 @@ st.markdown("""
         0%, 100% { transform: translateX(0); }
         10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
         20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes floatUp {
+        0% { opacity: 1; top: 0; }
+        100% { opacity: 0; top: -30px; }
     }
     .stApp {
         background: linear-gradient(-45deg, #0F1117, #1E1E2E, #2D2D3D, #3D3D4D);
@@ -296,10 +349,6 @@ st.markdown("""
         font-size: 14px;
         margin-top: 10px;
         animation: fadeIn 0.3s ease;
-    }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
     }
     .brand-area {
         text-align: center;
@@ -490,6 +539,7 @@ st.markdown("""
         padding: 8px 15px;
         width: 300px;
         color: white;
+        animation: fadeIn 0.5s ease-out;
     }
     .profile-badge {
         background: linear-gradient(45deg, #00C6FF, #0072FF);
@@ -515,6 +565,7 @@ st.markdown("""
         color: white;
         cursor: pointer;
         transition: all 0.3s ease;
+        animation: fadeIn 0.5s ease-out;
     }
     .category-button:hover {
         background: linear-gradient(45deg, #00C6FF, #0072FF);
@@ -524,15 +575,19 @@ st.markdown("""
     
     /* Thread Cards */
     .thread-card {
-        background: rgba(30, 30, 46, 0.8);
-        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 16px;
         padding: 20px;
-        margin-bottom: 15px;
-        transition: all 0.3s ease;
+        margin-bottom: 20px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.4s ease;
+        cursor: pointer;
+        backdrop-filter: blur(8px);
+        animation: fadeIn 0.5s ease-out;
     }
     .thread-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(0, 198, 255, 0.2);
+        transform: translateY(-5px) scale(1.01);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
     }
     .thread-title {
         font-size: 18px;
@@ -553,17 +608,20 @@ st.markdown("""
         font-size: 14px;
     }
     .upvote-button {
-        background: rgba(45, 45, 61, 0.5);
-        border: none;
-        border-radius: 20px;
-        padding: 5px 10px;
+        display: inline-block;
+        padding: 6px 12px;
+        background: #2f54eb;
         color: white;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: transform 0.2s ease, background 0.3s ease;
+        animation: fadeIn 0.5s ease-out;
     }
     .upvote-button:hover {
-        background: linear-gradient(45deg, #00C6FF, #0072FF);
         transform: scale(1.05);
+        background: #40a9ff;
     }
     
     /* Create Thread Button */
@@ -571,24 +629,17 @@ st.markdown("""
         position: fixed;
         bottom: 30px;
         right: 30px;
-        background: linear-gradient(45deg, #00C6FF, #0072FF);
-        border: none;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        font-size: 24px;
-        color: white;
-        cursor: pointer;
-        box-shadow: 0 5px 15px rgba(0, 198, 255, 0.3);
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         z-index: 1000;
+        animation: fadeIn 0.5s ease-out;
     }
-    .create-thread-button:hover {
-        transform: translateY(-3px) rotate(180deg);
-        box-shadow: 0 8px 25px rgba(0, 198, 255, 0.4);
+    .floating-plus {
+        position: absolute;
+        font-size: 1.2rem;
+        color: #2f54eb;
+        animation: floatUp 1s ease forwards;
+    }
+    .comment-section {
+        animation: fadeIn 0.5s ease-out;
     }
 </style>
 """, unsafe_allow_html=True)
