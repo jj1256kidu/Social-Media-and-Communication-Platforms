@@ -552,7 +552,7 @@ else:
         selected_cat = next((cat for cat in st.session_state.categories if cat['id'] == st.session_state.selected_category), None)
         if selected_cat:
             st.markdown(f"### New Post in {selected_cat['name']}")
-            with st.form("new_post_form"):
+            with st.form(f"category_post_form_{st.session_state.selected_category}"):
                 post_title = st.text_input("Title", placeholder="Enter your post title")
                 post_content = st.text_area("Content", placeholder="Write your post content here...")
                 col1, col2 = st.columns([1, 4])
@@ -637,7 +637,7 @@ else:
     # Create Post
     if st.session_state.current_user:
         with st.expander("➕ Create New Post", expanded=False):
-            with st.form("new_post_form"):
+            with st.form("main_post_form"):
                 title = st.text_input("Title")
                 content = st.text_area("Content", placeholder="Start typing your thoughts... |")
                 if content:
@@ -667,5 +667,5 @@ else:
                     st.session_state.posts.append(new_post)
                     st.success("Post created successfully!")
                     st.balloons()
-                    time.sleep(2)  # Show success animation
+                    time.sleep(2)
                     st.experimental_rerun() 
