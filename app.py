@@ -1126,23 +1126,42 @@ elif st.session_state.current_user:
                             </div>
                         """, unsafe_allow_html=True)
 
-    # Create New Post Button with Lottie animation
+    # Add event listener for thread creation
     components.html("""
-        <div style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
-            <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_tll0j4bb.json" 
-                          background="transparent" speed="1" 
-                          style="width: 60px; height: 60px; cursor: pointer;" 
-                          onclick="openModal()" 
-                          loop autoplay></lottie-player>
-        </div>
         <script>
             document.addEventListener('create_thread', function(e) {
-                // Handle the thread creation event
                 const { title, content } = e.detail;
-                // You can add additional handling here if needed
+                // Trigger Streamlit to create new post
+                const event = new CustomEvent('streamlit:setComponentValue', {
+                    detail: { value: { title, content } }
+                });
+                document.dispatchEvent(event);
             });
         </script>
     """, height=0)
+
+    # Create new thread form
+    if st.session_state.current_user:
+        # Add floating create button
+        components.html("""
+            <div style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
+                <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_tll0j4bb.json" 
+                              background="transparent" speed="1" 
+                              style="width: 60px; height: 60px; cursor: pointer;" 
+                              onclick="openModal()" 
+                              loop autoplay></lottie-player>
+            </div>
+        """, height=0)
+
+        # Handle thread creation
+        if 'create_thread' in st.session_state:
+            create_new_post(
+                category_id='1',  # Default to General category
+                title=st.session_state.create_thread['title'],
+                content=st.session_state.create_thread['content']
+            )
+            st.session_state.create_thread = None
+            st.rerun()
 
 # Add enhanced UI components
 def add_enhanced_ui():
