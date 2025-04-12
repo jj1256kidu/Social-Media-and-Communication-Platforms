@@ -281,31 +281,388 @@ def add_gradient_overlay():
         </style>
     """, height=0)
 
-# Add theme switcher component
-def theme_switcher():
+# Add modern theme components
+def add_modern_theme():
+    components.html("""
+        <style>
+            /* Modern Color Palette */
+            :root {
+                --primary: #6366f1;
+                --secondary: #8b5cf6;
+                --accent: #ec4899;
+                --background: #0f172a;
+                --surface: #1e293b;
+                --text: #f8fafc;
+                --muted: #94a3b8;
+            }
+
+            /* Modern App Container */
+            .stApp {
+                background: linear-gradient(135deg, var(--background) 0%, #1e1b4b 100%);
+                min-height: 100vh;
+                padding: 20px;
+            }
+
+            /* Modern Navigation */
+            .st-emotion-cache-1v0mbdj {
+                background: rgba(30, 41, 59, 0.8) !important;
+                backdrop-filter: blur(10px);
+                border-radius: 20px;
+                padding: 15px;
+                margin-bottom: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            /* Modern Thread Cards */
+            .thread-card {
+                background: rgba(30, 41, 59, 0.8);
+                backdrop-filter: blur(10px);
+                border-radius: 20px;
+                padding: 25px;
+                margin-bottom: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                transition: all 0.3s ease;
+                animation: fadeIn 0.5s ease;
+            }
+
+            .thread-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+                border: 1px solid rgba(99, 102, 241, 0.3);
+            }
+
+            /* Modern Buttons */
+            .stButton>button {
+                background: linear-gradient(45deg, var(--primary), var(--secondary)) !important;
+                border: none !important;
+                border-radius: 12px !important;
+                padding: 12px 24px !important;
+                color: white !important;
+                font-weight: 600 !important;
+                transition: all 0.3s ease !important;
+            }
+
+            .stButton>button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+            }
+
+            /* Modern Input Fields */
+            .stTextInput>div>div>input,
+            .stTextArea>div>div>textarea {
+                background: rgba(30, 41, 59, 0.8) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                border-radius: 12px !important;
+                color: white !important;
+                padding: 12px !important;
+                transition: all 0.3s ease !important;
+            }
+
+            .stTextInput>div>div>input:focus,
+            .stTextArea>div>div>textarea:focus {
+                border-color: var(--primary) !important;
+                box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
+            }
+
+            /* Modern Category Buttons */
+            .category-btn {
+                background: rgba(30, 41, 59, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 12px;
+                padding: 10px 20px;
+                color: white;
+                transition: all 0.3s ease;
+            }
+
+            .category-btn:hover {
+                background: linear-gradient(45deg, var(--primary), var(--secondary));
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+            }
+
+            /* Modern Floating Button */
+            .create-btn {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background: linear-gradient(45deg, var(--primary), var(--secondary));
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 24px;
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+                cursor: pointer;
+                transition: all 0.3s ease;
+                z-index: 1000;
+            }
+
+            .create-btn:hover {
+                transform: scale(1.1) rotate(90deg);
+            }
+
+            /* Modern Comment Section */
+            .comment-section {
+                background: rgba(30, 41, 59, 0.8);
+                backdrop-filter: blur(10px);
+                border-radius: 12px;
+                padding: 15px;
+                margin-top: 15px;
+            }
+
+            .comment {
+                background: rgba(30, 41, 59, 0.8);
+                border-radius: 12px;
+                padding: 12px;
+                margin: 10px 0;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                animation: fadeIn 0.3s ease;
+            }
+
+            /* Modern Animations */
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            @keyframes float {
+                0% { transform: translateY(0px); }
+                50% { transform: translateY(-10px); }
+                100% { transform: translateY(0px); }
+            }
+
+            /* Modern Profile Section */
+            .profile-section {
+                background: rgba(30, 41, 59, 0.8);
+                backdrop-filter: blur(10px);
+                border-radius: 20px;
+                padding: 25px;
+                margin-bottom: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            /* Modern Search Bar */
+            .search-bar {
+                background: rgba(30, 41, 59, 0.8);
+                border-radius: 12px;
+                padding: 12px 20px;
+                margin-bottom: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            /* Modern Particles Background */
+            #particles-js {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: -1;
+            }
+
+            /* Modern Theme Switcher */
+            .theme-switcher {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 1000;
+            }
+
+            .theme-switcher select {
+                background: rgba(30, 41, 59, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 12px;
+                padding: 8px 15px;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .theme-switcher select:hover {
+                background: rgba(30, 41, 59, 0.9);
+            }
+
+            /* Modern Loading States */
+            .loading {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(15, 23, 42, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+                backdrop-filter: blur(5px);
+            }
+
+            .loading-spinner {
+                width: 50px;
+                height: 50px;
+                border: 3px solid var(--primary);
+                border-radius: 50%;
+                border-top-color: transparent;
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+
+            /* Modern Toast Notifications */
+            .toast {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                background: rgba(30, 41, 59, 0.9);
+                color: white;
+                border-radius: 12px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
+                z-index: 1000;
+            }
+
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+
+            /* Modern Tooltips */
+            .tooltip {
+                position: relative;
+                display: inline-block;
+            }
+
+            .tooltip .tooltip-text {
+                visibility: hidden;
+                width: 120px;
+                background-color: rgba(30, 41, 59, 0.9);
+                color: white;
+                text-align: center;
+                border-radius: 6px;
+                padding: 5px;
+                position: absolute;
+                z-index: 1;
+                bottom: 125%;
+                left: 50%;
+                transform: translateX(-50%);
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+
+            .tooltip:hover .tooltip-text {
+                visibility: visible;
+                opacity: 1;
+            }
+
+            /* Modern Progress Bar */
+            .progress-bar {
+                height: 4px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 2px;
+                overflow: hidden;
+                margin: 10px 0;
+            }
+
+            .progress-bar-fill {
+                height: 100%;
+                background: linear-gradient(90deg, var(--primary), var(--secondary));
+                transition: width 0.3s ease;
+            }
+
+            /* Modern Empty States */
+            .empty-state {
+                text-align: center;
+                padding: 40px;
+                color: var(--muted);
+            }
+
+            .empty-state-icon {
+                font-size: 48px;
+                margin-bottom: 20px;
+                animation: float 3s ease-in-out infinite;
+            }
+
+            /* Modern Success States */
+            .success-state {
+                background: rgba(16, 185, 129, 0.1);
+                border: 1px solid rgba(16, 185, 129, 0.2);
+                border-radius: 12px;
+                padding: 15px;
+                margin: 10px 0;
+                animation: fadeIn 0.3s ease;
+            }
+
+            /* Modern Error States */
+            .error-state {
+                background: rgba(239, 68, 68, 0.1);
+                border: 1px solid rgba(239, 68, 68, 0.2);
+                border-radius: 12px;
+                padding: 15px;
+                margin: 10px 0;
+                animation: fadeIn 0.3s ease;
+            }
+
+            /* Modern Responsive Design */
+            @media (max-width: 768px) {
+                .container {
+                    padding: 10px;
+                }
+                .card {
+                    margin: 10px 0;
+                }
+                .create-btn {
+                    bottom: 20px;
+                    right: 20px;
+                }
+            }
+        </style>
+    """, height=0)
+
+# Add modern theme
+add_modern_theme()
+
+# Update theme switcher with modern themes
+def update_theme_switcher():
     components.html("""
         <div class="theme-switcher">
             <select onchange="changeTheme(this.value)">
-                <option value="pastel">🌈 Pastel</option>
-                <option value="sunset">🌅 Sunset</option>
-                <option value="space">🪐 Space</option>
+                <option value="modern">🎨 Modern</option>
+                <option value="dark">🌙 Dark</option>
+                <option value="light">☀️ Light</option>
+                <option value="gradient">🌈 Gradient</option>
             </select>
         </div>
         <script>
             function changeTheme(value) {
                 let body = document.querySelector('.stApp');
-                if (value === 'pastel') {
-                    body.style.background = 'linear-gradient(120deg, #f9f9f9, #e0f7fa, #d0e1f9)';
-                } else if (value === 'sunset') {
-                    body.style.background = 'linear-gradient(120deg, #fbc2eb, #a6c1ee)';
-                } else if (value === 'space') {
-                    body.style.background = 'linear-gradient(120deg, #0f2027, #203a43, #2c5364)';
+                if (value === 'modern') {
+                    body.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)';
+                } else if (value === 'dark') {
+                    body.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
+                } else if (value === 'light') {
+                    body.style.background = 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)';
+                } else if (value === 'gradient') {
+                    body.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)';
                 }
                 body.style.backgroundSize = '400% 400%';
                 body.style.animation = 'gradientBG 15s ease infinite';
             }
         </script>
     """, height=0)
+
+# Update theme switcher
+update_theme_switcher()
 
 # Add confetti component
 def trigger_confetti():
