@@ -1434,7 +1434,7 @@ st.session_state.current_user = {
 add_particles_background()
 
 # Add theme switcher
-theme_switcher()
+update_theme_switcher()
 
 # Add enhanced thread creation modal
 add_enhanced_thread_modal()
