@@ -6,6 +6,8 @@ import json
 from streamlit_lottie import st_lottie
 import requests
 import time
+import streamlit.components.v1 as components
+from streamlit_theme import st_theme
 
 # Initialize session state with dummy data
 if 'posts' not in st.session_state:
@@ -686,7 +688,13 @@ if not st.session_state.current_user:
 
 # Main App (After Login)
 elif st.session_state.current_user:
-    # Top Navigation Bar with working search
+    # Add particles background
+    add_particles_background()
+    
+    # Add theme switcher
+    theme_switcher()
+    
+    # Top Navigation Bar
     search_col, profile_col = st.columns([3, 1])
     with search_col:
         search_query = st.text_input("🔍", placeholder="Search threads...", label_visibility="collapsed")
@@ -694,7 +702,7 @@ elif st.session_state.current_user:
         if st.button(f"👤 @{st.session_state.current_user['username']}", type="primary"):
             st.session_state.show_profile = True
 
-    # Categories Section with working buttons
+    # Categories Section
     st.markdown("### 📚 Categories")
     cat_cols = st.columns(4)
     for idx, category in enumerate(st.session_state.categories):
@@ -722,15 +730,15 @@ elif st.session_state.current_user:
                               key=lambda x: (x['upvotes'] - x['downvotes']), 
                               reverse=True)
 
-    # Display posts
+    # Display posts with enhanced UI
     for post in filtered_posts:
         with st.container():
             st.markdown(f"""
                 <div class="thread-card">
-                    <div class="thread-title">{post['title']}</div>
-                    <div class="thread-preview">{post['content'][:200]}...</div>
+                    <h3>{post['title']}</h3>
+                    <p>{post['content'][:200]}...</p>
                     <div class="thread-meta">
-                        <span>🔼 {post['upvotes']} Upvotes</span>
+                        <button class="upvote-button" onclick="handleUpvote(this)">🔼 {post['upvotes']} Upvotes</button>
                         <span>💬 {len(post['comments'])} Comments</span>
                         <span>👤 {post['author']}</span>
                         <span>🕒 {post['timestamp']}</span>
@@ -738,50 +746,60 @@ elif st.session_state.current_user:
                 </div>
             """, unsafe_allow_html=True)
             
-            col1, col2, col3 = st.columns([1, 1, 8])
+            col1, col2 = st.columns([1, 1])
             with col1:
                 if st.button("👍 Upvote", key=f"up_{post['id']}"):
                     handle_upvote(post['id'])
+                    trigger_confetti()
                     st.rerun()
             with col2:
                 if st.button("💬 Comment", key=f"comment_{post['id']}"):
                     st.session_state.commenting_on = post['id']
 
-            # Show comments
+            # Show comments with enhanced UI
             if len(post['comments']) > 0:
                 with st.expander(f"Show {len(post['comments'])} comments"):
                     for comment in post['comments']:
                         st.markdown(f"""
-                            <div style="padding: 10px; margin: 5px 0; background: rgba(45, 45, 61, 0.5); border-radius: 10px;">
+                            <div style="padding: 10px; margin: 5px 0; background: rgba(255, 255, 255, 0.8); border-radius: 10px; backdrop-filter: blur(8px);">
                                 <strong>{comment['author']}</strong>: {comment['content']}
                             </div>
                         """, unsafe_allow_html=True)
 
-    # Create New Post Button
-    if st.button("➕ Create New Thread", type="primary", use_container_width=True):
-        st.session_state.show_new_post_form = True
+    # Create New Post Button with Lottie animation
+    components.html("""
+        <div style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
+            <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_tll0j4bb.json" 
+                          background="transparent" speed="1" 
+                          style="width: 60px; height: 60px; cursor: pointer;" 
+                          onclick="document.dispatchEvent(new CustomEvent('create_thread'))" 
+                          loop autoplay></lottie-player>
+        </div>
+    """, height=0)
 
-    # Create New Post Form
+    # Create New Post Form with enhanced UI
     if st.session_state.get('show_new_post_form', False):
         with st.form("new_post_form", clear_on_submit=True):
-            title = st.text_input("Title", placeholder="Enter an interesting title...")
-            content = st.text_area("Content", placeholder="Share your thoughts...")
+            st.markdown("### 📝 Create a New Thread")
+            title = st.text_input("Thread Title", placeholder="Enter an interesting title...")
+            content = st.text_area("Content", placeholder="Share your thoughts...", height=150)
             category = st.selectbox("Category", 
                                   options=[c['name'] for c in st.session_state.categories],
                                   format_func=lambda x: x.split()[-1])
             
             col1, col2 = st.columns([1, 1])
             with col1:
-                if st.form_submit_button("Post Thread"):
+                if st.form_submit_button("Post Thread", use_container_width=True):
                     if title and content:
                         category_id = next(c['id'] for c in st.session_state.categories 
                                         if c['name'] == category)
                         create_new_post(category_id, title, content)
+                        trigger_confetti()
                         st.success("Thread posted successfully!")
                         st.session_state.show_new_post_form = False
                         st.rerun()
             with col2:
-                if st.form_submit_button("Cancel"):
+                if st.form_submit_button("Cancel", use_container_width=True):
                     st.session_state.show_new_post_form = False
                     st.rerun()
 
@@ -796,4 +814,35 @@ def handle_upvote(post_id):
 # Function to handle category selection
 def handle_category_selection(category_id):
     st.session_state.selected_category = category_id
-    st.rerun() 
+    st.rerun()
+
+# Add theme switcher component
+def theme_switcher():
+    st.markdown("""
+        <div class="theme-switcher">
+            <select onchange="changeTheme(this.value)">
+                <option value="pastel">🌈 Pastel</option>
+                <option value="sunset">🌅 Sunset</option>
+                <option value="space">🪐 Space</option>
+            </select>
+        </div>
+    """, unsafe_allow_html=True)
+
+# Add confetti component
+def trigger_confetti():
+    components.html("""
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+        <script>
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        </script>
+    """, height=0)
+
+# Add particles.js background
+def add_particles_background():
+    components.html("""
+        <div id="particles-js"></div>
+        <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+        <script>
+            particlesJS.load('particles-js', 'https://raw.githubusercontent.com/VincentGarreau/particles.js/master/demo/particles.json');
+        </script>
+    """, height=0) 
