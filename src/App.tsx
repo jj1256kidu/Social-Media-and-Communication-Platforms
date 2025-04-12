@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { 
   ArrowUpIcon, 
@@ -14,7 +14,11 @@ import {
   ClockIcon,
   TagIcon,
   MicrophoneIcon,
-  SparklesIcon
+  SparklesIcon,
+  UserGroupIcon,
+  BookmarkIcon,
+  BellIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -22,11 +26,20 @@ interface User {
   id: string;
   username: string;
   avatar: string;
-  bio?: string;
+  bio: string;
   karma: number;
-  badges: string[];
   level: number;
-  joinedDate: Date;
+  postCount: number;
+  commentCount: number;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+  threadCount: number;
+  color: string;
 }
 
 interface Post {
@@ -34,15 +47,16 @@ interface Post {
   title: string;
   content: string;
   author: User;
-  category: string;
-  tags: string[];
+  category: Category;
   upvotes: number;
   downvotes: number;
   comments: Comment[];
+  tags: string[];
   createdAt: Date;
-  isAnonymous?: boolean;
-  summary?: string;
-  isTrending?: boolean;
+  lastReplyAt: Date;
+  isAnonymous: boolean;
+  views: number;
+  isTrending: boolean;
 }
 
 interface Comment {
@@ -51,18 +65,9 @@ interface Comment {
   author: User;
   upvotes: number;
   downvotes: number;
+  replies: Comment[];
   createdAt: Date;
-  parentId?: string;
-  isCollapsed?: boolean;
-  isAnonymous?: boolean;
-}
-
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  postCount: number;
+  isOP: boolean;
 }
 
 const App: React.FC = () => {
@@ -74,25 +79,36 @@ const App: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([
     {
       id: '1',
-      name: 'General Discussion',
-      description: 'Talk about anything and everything',
-      icon: '💬',
-      postCount: 0
+      name: 'Tech',
+      icon: '💻',
+      description: 'Discussions about technology, programming, and software development',
+      threadCount: 1250,
+      color: '#00C6FF',
     },
     {
       id: '2',
-      name: 'Technology',
-      description: 'Latest tech news and discussions',
-      icon: '💻',
-      postCount: 0
+      name: 'Life',
+      icon: '🌱',
+      description: 'Life advice, personal development, and general discussions',
+      threadCount: 890,
+      color: '#8F00FF',
     },
     {
       id: '3',
-      name: 'Gaming',
-      description: 'Video games and gaming culture',
-      icon: '🎮',
-      postCount: 0
-    }
+      name: 'Humor',
+      icon: '😂',
+      description: 'Funny stories, memes, and light-hearted content',
+      threadCount: 750,
+      color: '#39FF14',
+    },
+    {
+      id: '4',
+      name: 'AMA',
+      icon: '❓',
+      description: 'Ask Me Anything sessions with interesting people',
+      threadCount: 320,
+      color: '#FF6B6B',
+    },
   ]);
 
   const [posts, setPosts] = useState<Post[]>([
@@ -105,12 +121,23 @@ const App: React.FC = () => {
         username: 'Admin',
         avatar: '👨‍💻'
       },
-      category: 'General Discussion',
+      category: {
+        id: '1',
+        name: 'Tech',
+        icon: '💻',
+        description: 'Discussions about technology, programming, and software development',
+        threadCount: 1250,
+        color: '#00C6FF',
+      },
       tags: [],
       upvotes: 10,
       downvotes: 0,
       comments: [],
-      createdAt: new Date()
+      createdAt: new Date(),
+      lastReplyAt: new Date(),
+      isAnonymous: false,
+      views: 0,
+      isTrending: true
     }
   ]);
 
@@ -121,6 +148,11 @@ const App: React.FC = () => {
 
   const [loginUsername, setLoginUsername] = useState('');
   const [isLoginFocused, setIsLoginFocused] = useState(false);
+
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [showNewThreadModal, setShowNewThreadModal] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
   const handleLogin = (username: string) => {
     setCurrentUser({
@@ -151,12 +183,16 @@ const App: React.FC = () => {
       title,
       content,
       author: currentUser,
-      category,
+      category: categories.find(c => c.name === category) as Category,
       tags: [],
       upvotes: 0,
       downvotes: 0,
       comments: [],
-      createdAt: new Date()
+      createdAt: new Date(),
+      lastReplyAt: new Date(),
+      isAnonymous: false,
+      views: 0,
+      isTrending: false
     };
 
     setPosts([newPost, ...posts]);
@@ -177,7 +213,9 @@ const App: React.FC = () => {
               author: currentUser,
               upvotes: 0,
               downvotes: 0,
-              createdAt: new Date()
+              replies: [],
+              createdAt: new Date(),
+              isOP: true
             }
           ]
         };
@@ -211,208 +249,214 @@ const App: React.FC = () => {
     return true;
   });
 
+  // Search animation
+  useEffect(() => {
+    if (searchQuery) {
+      setIsTyping(true);
+      const timer = setTimeout(() => setIsTyping(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchQuery]);
+
   return (
     <Router>
       <div className={`min-h-screen ${isDarkMode ? 'dark' : ''}`}>
-        {/* Header */}
-        <header className="modern-nav sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <Link to="/" className="text-2xl font-bold text-gradient">
-              Future Forum
-            </Link>
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search posts..."
-                  className="login-input"
-                />
-                <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-text-light" />
+        {/* Particle Background */}
+        <div className="particle-background" id="particles-js" />
+
+        {/* Navigation */}
+        <nav className="modern-nav fixed top-0 left-0 right-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="text-2xl font-bold text-gradient"
+                >
+                  Future Forum
+                </motion.div>
               </div>
-              <button
-                onClick={toggleDarkMode}
-                className="p-2 rounded-lg hover:bg-primary/10 transition-colors"
-              >
-                {isDarkMode ? (
-                  <SunIcon className="h-5 w-5" />
-                ) : (
-                  <MoonIcon className="h-5 w-5" />
-                )}
-              </button>
-              {currentUser ? (
-                <div className="flex items-center space-x-2">
-                  <div className="avatar">
-                    {currentUser.avatar}
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-medium">{currentUser.username}</span>
-                    <span className="text-xs text-text-light">Level {currentUser.level}</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="login-container input-animation">
-                  <div className="login-glow"></div>
-                  <div className="relative flex items-center">
-                    <input
-                      type="text"
-                      value={loginUsername}
-                      onChange={(e) => setLoginUsername(e.target.value)}
-                      placeholder="Enter username"
-                      className="login-input"
-                    />
-                    <button
-                      onClick={() => handleLogin(loginUsername)}
-                      disabled={!loginUsername}
-                      className="login-button button-hover"
-                    >
-                      <UserIcon className="h-5 w-5" />
-                    </button>
-                  </div>
-                </div>
-              )}
+
+              <div className="flex items-center space-x-4">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowSearch(!showSearch)}
+                  className="p-2 rounded-xl hover:bg-surface/50"
+                >
+                  <SearchIcon className="w-5 h-5 text-text" />
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={toggleDarkMode}
+                  className="p-2 rounded-xl hover:bg-surface/50"
+                >
+                  {isDarkMode ? (
+                    <SunIcon className="w-5 h-5 text-text" />
+                  ) : (
+                    <MoonIcon className="w-5 h-5 text-text" />
+                  )}
+                </motion.button>
+              </div>
             </div>
           </div>
-        </header>
+        </nav>
 
-        {/* Main Content */}
-        <main className="container mx-auto px-4 py-8">
-          <Routes>
-            <Route path="/" element={
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                {/* Sidebar */}
-                <aside className="md:col-span-1">
-                  <div className="modern-card p-4">
-                    <h2 className="text-lg font-semibold mb-4">Categories</h2>
-                    <ul className="space-y-2">
-                      {categories.map(category => (
-                        <li key={category.id}>
-                          <Link
-                            to={`/category/${category.id}`}
-                            className="flex items-center space-x-2 p-2 rounded-lg hover:bg-primary/5 transition-colors"
-                          >
-                            <span className="text-lg">{category.icon}</span>
-                            <div className="flex-1">
-                              <span>{category.name}</span>
-                              <span className="text-xs text-text-light ml-2">({category.postCount})</span>
-                            </div>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </aside>
-
-                {/* Content Area */}
-                <div className="md:col-span-3">
-                  <div className="modern-card p-6">
-                    <div className="flex justify-between items-center mb-6">
-                      <div className="flex items-center space-x-4">
-                        <button
-                          onClick={() => setSelectedFilter('trending')}
-                          className={`flex items-center space-x-2 p-2 rounded-lg transition-colors
-                            ${selectedFilter === 'trending' ? 'bg-primary/10 text-primary' : 'text-text-light hover:bg-primary/5'}`}
-                        >
-                          <FireIcon className="h-5 w-5" />
-                          <span>Trending</span>
-                        </button>
-                        <button
-                          onClick={() => setSelectedFilter('recent')}
-                          className={`flex items-center space-x-2 p-2 rounded-lg transition-colors
-                            ${selectedFilter === 'recent' ? 'bg-primary/10 text-primary' : 'text-text-light hover:bg-primary/5'}`}
-                        >
-                          <ClockIcon className="h-5 w-5" />
-                          <span>Recent</span>
-                        </button>
-                      </div>
-                      {currentUser && (
-                        <button
-                          onClick={() => setShowCreatePostModal(true)}
-                          className="minimal-button"
-                        >
-                          <PlusIcon className="h-5 w-5 mr-2" />
-                          Create Post
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="space-y-6">
-                      {filteredPosts.map(post => (
-                        <motion.div
-                          key={post.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="modern-card p-4 hover-lift"
-                        >
-                          {post.isTrending && (
-                            <div className="flex items-center text-primary mb-2">
-                              <FireIcon className="h-4 w-4 mr-1" />
-                              <span className="text-sm font-medium">Trending</span>
-                            </div>
-                          )}
-                          <div className="flex items-start space-x-4">
-                            <div className="flex flex-col items-center">
-                              <button
-                                onClick={() => handleVote(post.id, true)}
-                                className="vote-button"
-                              >
-                                <ArrowUpIcon className="h-5 w-5" />
-                              </button>
-                              <span className="font-medium my-1">{post.upvotes - post.downvotes}</span>
-                              <button
-                                onClick={() => handleVote(post.id, false)}
-                                className="vote-button"
-                              >
-                                <ArrowDownIcon className="h-5 w-5" />
-                              </button>
-                            </div>
-                            <div className="flex-1">
-                              <h2 className="text-lg font-semibold">{post.title}</h2>
-                              {post.summary && (
-                                <p className="text-sm text-text-light italic mb-2">{post.summary}</p>
-                              )}
-                              <p className="text-text-light mt-2">{post.content}</p>
-                              <div className="flex flex-wrap gap-2 mt-2">
-                                {post.tags.map(tag => (
-                                  <span key={tag} className="category-pill">
-                                    <TagIcon className="h-3 w-3 mr-1" />
-                                    {tag}
-                                  </span>
-                                ))}
-                              </div>
-                              <div className="flex items-center mt-4 text-sm text-text-light">
-                                <div className="flex items-center">
-                                  <div className="avatar mr-2">
-                                    {post.author.avatar}
-                                  </div>
-                                  <span>{post.isAnonymous ? 'Anonymous' : post.author.username}</span>
-                                </div>
-                                <span className="mx-2">•</span>
-                                <span className="category-pill">{post.category}</span>
-                                <span className="mx-2">•</span>
-                                <span>{post.createdAt.toLocaleDateString()}</span>
-                              </div>
-                              <div className="comment-section">
-                                <button
-                                  onClick={() => {/* Open comments section */}}
-                                  className="flex items-center text-primary hover:text-primary-dark"
-                                >
-                                  <ChatBubbleLeftIcon className="h-5 w-5 mr-2" />
-                                  {post.comments.length} Comments
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
+        {/* Search Bar */}
+        <AnimatePresence>
+          {showSearch && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="fixed top-20 left-0 right-0 z-40 px-4"
+            >
+              <div className="max-w-2xl mx-auto">
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={isTyping ? 'Searching...' : 'Search threads, users, or categories'}
+                    className="w-full px-4 py-3 rounded-xl bg-surface/50 backdrop-blur-lg border border-border/50
+                             focus:outline-none focus:ring-2 focus:ring-primary text-text"
+                  />
+                  <button
+                    onClick={() => setShowSearch(false)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                  >
+                    <XMarkIcon className="w-5 h-5 text-text-light" />
+                  </button>
                 </div>
               </div>
-            } />
-            <Route path="/category/:id" element={<div>Category Page</div>} />
-          </Routes>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Main Content */}
+        <main className="pt-20 pb-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Categories Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+              {categories.map((category, index) => (
+                <motion.div
+                  key={category.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="modern-card p-6 cursor-pointer hover-lift"
+                  onClick={() => setSelectedCategory(category)}
+                >
+                  <div className="flex items-center space-x-3 mb-4">
+                    <span className="text-2xl">{category.icon}</span>
+                    <h3 className="text-lg font-semibold text-text">{category.name}</h3>
+                  </div>
+                  <p className="text-sm text-text-light mb-4">{category.description}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-text-light">{category.threadCount} threads</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowNewThreadModal(true);
+                      }}
+                      className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20"
+                    >
+                      <PlusIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Trending Threads */}
+            <div className="mb-12">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-text">Trending Threads</h2>
+                <button className="minimal-button">View All</button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredPosts.map(post => (
+                  <motion.div
+                    key={post.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="modern-card p-4 hover-lift"
+                  >
+                    {post.isTrending && (
+                      <div className="flex items-center text-primary mb-2">
+                        <FireIcon className="h-4 w-4 mr-1" />
+                        <span className="text-sm font-medium">Trending</span>
+                      </div>
+                    )}
+                    <div className="flex items-start space-x-4">
+                      <div className="flex flex-col items-center">
+                        <button
+                          onClick={() => handleVote(post.id, true)}
+                          className="vote-button"
+                        >
+                          <ArrowUpIcon className="h-5 w-5" />
+                        </button>
+                        <span className="font-medium my-1">{post.upvotes - post.downvotes}</span>
+                        <button
+                          onClick={() => handleVote(post.id, false)}
+                          className="vote-button"
+                        >
+                          <ArrowDownIcon className="h-5 w-5" />
+                        </button>
+                      </div>
+                      <div className="flex-1">
+                        <h2 className="text-lg font-semibold">{post.title}</h2>
+                        <p className="text-text-light mt-2">{post.content}</p>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {post.tags.map(tag => (
+                            <span key={tag} className="category-pill">
+                              <TagIcon className="h-3 w-3 mr-1" />
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex items-center mt-4 text-sm text-text-light">
+                          <div className="flex items-center">
+                            <div className="avatar mr-2">
+                              {post.author.avatar}
+                            </div>
+                            <span>{post.author.username}</span>
+                          </div>
+                          <span className="mx-2">•</span>
+                          <span className="category-pill">{post.category.name}</span>
+                          <span className="mx-2">•</span>
+                          <span>{post.createdAt.toLocaleDateString()}</span>
+                        </div>
+                        <div className="comment-section">
+                          <button
+                            onClick={() => {/* Open comments section */}}
+                            className="flex items-center text-primary hover:text-primary-dark"
+                          >
+                            <ChatBubbleLeftIcon className="h-5 w-5 mr-2" />
+                            {post.comments.length} Comments
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
+            {/* Top Contributors */}
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-text">Top Contributors</h2>
+                <button className="minimal-button">View All</button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Contributor cards will go here */}
+              </div>
+            </div>
+          </div>
         </main>
 
         {/* Create Post Modal */}
@@ -499,6 +543,95 @@ const App: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* New Thread Modal */}
+        <AnimatePresence>
+          {showNewThreadModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center"
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="modern-card w-full max-w-2xl mx-4"
+              >
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-semibold text-text">Create New Thread</h3>
+                    <button
+                      onClick={() => setShowNewThreadModal(false)}
+                      className="p-2 rounded-lg hover:bg-surface/50"
+                    >
+                      <XMarkIcon className="w-5 h-5 text-text" />
+                    </button>
+                  </div>
+                  <form className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-text-light mb-2">
+                        Title
+                      </label>
+                      <input
+                        type="text"
+                        className="subtle-input"
+                        placeholder="Enter thread title"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-text-light mb-2">
+                        Category
+                      </label>
+                      <select className="subtle-input">
+                        {categories.map((category) => (
+                          <option key={category.id} value={category.id}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-text-light mb-2">
+                        Content
+                      </label>
+                      <textarea
+                        className="subtle-input min-h-[200px]"
+                        placeholder="Write your thread content here..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-text-light mb-2">
+                        Tags
+                      </label>
+                      <input
+                        type="text"
+                        className="subtle-input"
+                        placeholder="Add tags (comma separated)"
+                      />
+                    </div>
+                    <div className="flex justify-end space-x-4">
+                      <button
+                        type="button"
+                        onClick={() => setShowNewThreadModal(false)}
+                        className="px-4 py-2 rounded-xl font-medium text-text-light hover:bg-surface/50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="minimal-button"
+                      >
+                        Create Thread
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </Router>
   );
