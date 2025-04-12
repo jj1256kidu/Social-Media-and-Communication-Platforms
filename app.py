@@ -55,10 +55,17 @@ lottie_coding = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_fc
 lottie_login_success = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_hu9cd9.json")
 lottie_typing = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_yyjaqn.json")
 lottie_send = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_8w5pns.json")
+lottie_wave = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_8w5pns.json")
 
 # Custom CSS with animations
 st.markdown("""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    * {
+        font-family: 'Poppins', sans-serif;
+    }
+    
     @keyframes float {
         0% { transform: translateY(0px); }
         50% { transform: translateY(-10px); }
@@ -74,12 +81,162 @@ st.markdown("""
         50% { box-shadow: 0 0 20px rgba(0,198,255,0.8); }
         100% { box-shadow: 0 0 5px rgba(0,198,255,0.5); }
     }
+    @keyframes gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
     .stApp {
-        background-color: #0F1117;
+        background: linear-gradient(-45deg, #0F1117, #1E1E2E, #2D2D3D, #3D3D4D);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
         color: #ffffff;
     }
     .login-container {
         animation: float 6s ease-in-out infinite;
+    }
+    .login-card {
+        background: rgba(30, 30, 46, 0.8);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    .login-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 198, 255, 0.2);
+    }
+    .login-card.shake {
+        animation: shake 0.5s;
+    }
+    .input-container {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    .input-field {
+        width: 100%;
+        padding: 15px;
+        background: rgba(45, 45, 61, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: white;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+    .input-field:focus {
+        outline: none;
+        border-color: #00C6FF;
+        box-shadow: 0 0 15px rgba(0, 198, 255, 0.3);
+    }
+    .input-label {
+        position: absolute;
+        left: 15px;
+        top: 15px;
+        color: #666;
+        transition: all 0.3s ease;
+        pointer-events: none;
+    }
+    .input-field:focus + .input-label,
+    .input-field:not(:placeholder-shown) + .input-label {
+        top: -10px;
+        left: 10px;
+        font-size: 12px;
+        color: #00C6FF;
+        background: #1E1E2E;
+        padding: 0 5px;
+    }
+    .login-button {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(45deg, #00C6FF, #0072FF);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .login-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 198, 255, 0.4);
+    }
+    .login-button:active {
+        transform: translateY(0);
+    }
+    .login-button::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 5px;
+        height: 5px;
+        background: rgba(255, 255, 255, 0.5);
+        opacity: 0;
+        border-radius: 100%;
+        transform: scale(1, 1) translate(-50%);
+        transform-origin: 50% 50%;
+    }
+    .login-button:active::after {
+        animation: ripple 1s ease-out;
+    }
+    @keyframes ripple {
+        0% {
+            transform: scale(0, 0);
+            opacity: 0.5;
+        }
+        100% {
+            transform: scale(20, 20);
+            opacity: 0;
+        }
+    }
+    .forgot-password {
+        text-align: right;
+        margin-top: 10px;
+    }
+    .forgot-password a {
+        color: #00C6FF;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    .forgot-password a:hover {
+        color: #0072FF;
+    }
+    .error-message {
+        color: #FF6B6B;
+        font-size: 14px;
+        margin-top: 10px;
+        animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .brand-area {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    .brand-name {
+        font-size: 36px;
+        font-weight: 700;
+        background: linear-gradient(45deg, #00C6FF, #0072FF);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+    }
+    .tagline {
+        font-size: 18px;
+        color: #666;
     }
     .post-card {
         background-color: #1E1E2E;
@@ -210,17 +367,40 @@ if not st.session_state.current_user:
     col1, col2 = st.columns([1, 1])
     with col1:
         st.markdown('<div class="login-container">', unsafe_allow_html=True)
-        st.title("Welcome to ForumHub")
-        st.markdown("A modern forum for tech enthusiasts")
-        if lottie_coding:
-            st_lottie(lottie_coding, height=300, key="coding")
+        st.markdown("""
+        <div class="brand-area">
+            <div class="brand-name">ForumHub</div>
+            <div class="tagline">Where Ideas Thread Together</div>
+        </div>
+        """, unsafe_allow_html=True)
+        if lottie_wave:
+            st_lottie(lottie_wave, height=300, key="wave")
         st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
-        st.header("Login")
+        st.markdown("""
+        <div class="login-card">
+            <form class="login-form">
+                <div class="input-container">
+                    <input type="text" id="username" class="input-field" placeholder=" " required>
+                    <label for="username" class="input-label">Username</label>
+                </div>
+                <div class="input-container">
+                    <input type="password" id="password" class="input-field" placeholder=" " required>
+                    <label for="password" class="input-label">Password</label>
+                </div>
+                <div class="forgot-password">
+                    <a href="#">Forgot Password?</a>
+                </div>
+                <button type="submit" class="login-button">Login</button>
+            </form>
+        </div>
+        """, unsafe_allow_html=True)
+        
         with st.form("login_form"):
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
+            remember_me = st.checkbox("Remember me")
             submitted = st.form_submit_button("Login")
             
             if submitted:
@@ -242,6 +422,14 @@ if not st.session_state.current_user:
                     st.experimental_rerun()
                 else:
                     st.error("Invalid credentials")
+                    st.markdown("""
+                    <script>
+                        document.querySelector('.login-card').classList.add('shake');
+                        setTimeout(() => {
+                            document.querySelector('.login-card').classList.remove('shake');
+                        }, 500);
+                    </script>
+                    """, unsafe_allow_html=True)
 
 # Main App (After Login)
 else:
