@@ -48,6 +48,25 @@ if 'show_new_post_form' not in st.session_state:
 if 'selected_category' not in st.session_state:
     st.session_state.selected_category = None
 
+# Function to create new post
+def create_new_post(category_id, title, content):
+    new_post = {
+        'id': str(random.randint(1000, 9999)),
+        'category_id': category_id,
+        'title': title,
+        'content': content,
+        'author': st.session_state.current_user['username'],
+        'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'upvotes': 0,
+        'downvotes': 0,
+        'comments': []
+    }
+    if 'posts' not in st.session_state:
+        st.session_state.posts = []
+    st.session_state.posts.append(new_post)
+    st.session_state.show_new_post_form = False
+    st.session_state.selected_category = None
+
 # Load Lottie animations
 def load_lottieurl(url: str):
     r = requests.get(url)
@@ -832,23 +851,4 @@ elif st.session_state.current_user:
                             <span>🧑‍💻 {post['author']}</span>
                         </div>
                     </div>
-                """, unsafe_allow_html=True)
-
-# Function to create new post
-def create_new_post(category_id, title, content):
-    new_post = {
-        'id': str(random.randint(1000, 9999)),
-        'category_id': category_id,
-        'title': title,
-        'content': content,
-        'author': st.session_state.current_user['username'],
-        'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        'upvotes': 0,
-        'downvotes': 0,
-        'comments': []
-    }
-    if 'posts' not in st.session_state:
-        st.session_state.posts = []
-    st.session_state.posts.append(new_post)
-    st.session_state.show_new_post_form = False
-    st.session_state.selected_category = None 
+                """, unsafe_allow_html=True) 
