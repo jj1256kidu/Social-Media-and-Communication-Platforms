@@ -43,6 +43,10 @@ if 'categories' not in st.session_state:
             'color': '#FF6B6B'
         }
     ]
+if 'show_new_post_form' not in st.session_state:
+    st.session_state.show_new_post_form = False
+if 'selected_category' not in st.session_state:
+    st.session_state.selected_category = None
 
 # Load Lottie animations
 def load_lottieurl(url: str):
@@ -358,6 +362,40 @@ st.markdown("""
         border-radius: 5px;
         transition: width 0.3s ease;
     }
+    .category-card {
+        background: rgba(30, 30, 46, 0.8);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    .category-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 198, 255, 0.2);
+    }
+    .new-post-btn {
+        background: linear-gradient(45deg, #00C6FF, #0072FF);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 8px;
+        text-decoration: none;
+        float: right;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    .new-post-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 198, 255, 0.3);
+    }
+    .category-title {
+        font-size: 24px;
+        margin-bottom: 5px;
+    }
+    .category-description {
+        color: #666;
+        font-size: 14px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -492,19 +530,90 @@ else:
     with col2:
         filter_option = st.selectbox("Filter by", ["Recent", "Trending"])
     
-    # Categories
-    st.header("Categories")
-    category_cols = st.columns(4)
-    for i, category in enumerate(st.session_state.categories):
-        with category_cols[i % 4]:
+    # Function to create new post
+    def create_new_post(category_id, title, content):
+        new_post = {
+            'id': str(random.randint(1000, 9999)),
+            'category_id': category_id,
+            'title': title,
+            'content': content,
+            'author': st.session_state.current_user['username'],
+            'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'upvotes': 0,
+            'downvotes': 0,
+            'comments': []
+        }
+        st.session_state.posts.append(new_post)
+        st.session_state.show_new_post_form = False
+        st.session_state.selected_category = None
+
+    # New Post Form
+    if st.session_state.show_new_post_form and st.session_state.selected_category:
+        selected_cat = next((cat for cat in st.session_state.categories if cat['id'] == st.session_state.selected_category), None)
+        if selected_cat:
+            st.markdown(f"### New Post in {selected_cat['name']}")
+            with st.form("new_post_form"):
+                post_title = st.text_input("Title", placeholder="Enter your post title")
+                post_content = st.text_area("Content", placeholder="Write your post content here...")
+                col1, col2 = st.columns([1, 4])
+                with col1:
+                    submit_post = st.form_submit_button("Create Post")
+                with col2:
+                    if st.form_submit_button("Cancel"):
+                        st.session_state.show_new_post_form = False
+                        st.session_state.selected_category = None
+                        st.experimental_rerun()
+                
+                if submit_post and post_title and post_content:
+                    create_new_post(st.session_state.selected_category, post_title, post_content)
+                    st.success("Post created successfully!")
+                    time.sleep(1)
+                    st.experimental_rerun()
+
+    # Display Categories
+    else:
+        st.markdown("### Categories")
+        for category in st.session_state.categories:
             st.markdown(f"""
-            <div class="category-card">
-                <h3>{category['icon']} {category['name']}</h3>
-                <p>{category['description']}</p>
-                <button class="vote-button">New Post</button>
-            </div>
+                <div class="category-card">
+                    <div class="category-title">
+                        {category['icon']} {category['name']}
+                        <a href="#" class="new-post-btn" onclick="
+                            document.dispatchEvent(new CustomEvent('new_post_click', {{
+                                detail: {{ category_id: '{category['id']}' }}
+                            }}))">
+                            ✏️ New Post
+                        </a>
+                    </div>
+                    <div class="category-description">{category['description']}</div>
+                </div>
             """, unsafe_allow_html=True)
-    
+
+            # Handle New Post button click
+            if st.button("New Post", key=f"new_post_{category['id']}", type="primary"):
+                st.session_state.show_new_post_form = True
+                st.session_state.selected_category = category['id']
+                st.experimental_rerun()
+
+            # Display posts for this category
+            category_posts = [post for post in st.session_state.posts if post['category_id'] == category['id']]
+            if category_posts:
+                for post in category_posts:
+                    with st.container():
+                        st.markdown(f"**{post['title']}** - by {post['author']}")
+                        st.markdown(post['content'])
+                        col1, col2, col3 = st.columns([1, 1, 8])
+                        with col1:
+                            st.button("👍", key=f"upvote_{post['id']}")
+                        with col2:
+                            st.button("👎", key=f"downvote_{post['id']}")
+                        with col3:
+                            st.markdown(f"Votes: {post['upvotes'] - post['downvotes']}")
+            else:
+                st.markdown("*No posts yet in this category*")
+            
+            st.markdown("---")
+
     # Posts
     st.header("Posts")
     if st.session_state.posts:
