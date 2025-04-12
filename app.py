@@ -51,11 +51,10 @@ def load_lottieurl(url: str):
         return None
     return r.json()
 
-lottie_coding = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_fcfjwiyb.json")
-lottie_login_success = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_hu9cd9.json")
-lottie_typing = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_yyjaqn.json")
-lottie_send = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_8w5pns.json")
-lottie_wave = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_8w5pns.json")
+lottie_login_success = load_lottieurl("https://assets3.lottiefiles.com/packages/lf20_hu9cd9.json")
+lottie_typing = load_lottieurl("https://assets4.lottiefiles.com/packages/lf20_yyjaqn.json")
+lottie_send = load_lottieurl("https://assets4.lottiefiles.com/packages/lf20_8w5pns.json")
+lottie_wave = load_lottieurl("https://assets2.lottiefiles.com/private_files/lf30_WdTEui.json")
 
 # Custom CSS with animations
 st.markdown("""
@@ -364,72 +363,73 @@ st.markdown("""
 
 # Login Page
 if not st.session_state.current_user:
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        st.markdown('<div class="login-container">', unsafe_allow_html=True)
-        st.markdown("""
-        <div class="brand-area">
-            <div class="brand-name">ForumHub</div>
-            <div class="tagline">Where Ideas Thread Together</div>
-        </div>
-        """, unsafe_allow_html=True)
-        if lottie_wave:
-            st_lottie(lottie_wave, height=300, key="wave")
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <div class="login-card">
-            <form class="login-form">
-                <div class="input-container">
-                    <input type="text" id="username" class="input-field" placeholder=" " required>
-                    <label for="username" class="input-label">Username</label>
-                </div>
-                <div class="input-container">
-                    <input type="password" id="password" class="input-field" placeholder=" " required>
-                    <label for="password" class="input-label">Password</label>
-                </div>
-                <div class="forgot-password">
-                    <a href="#">Forgot Password?</a>
-                </div>
-                <button type="submit" class="login-button">Login</button>
-            </form>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        with st.form("login_form"):
-            username = st.text_input("Username")
-            password = st.text_input("Password", type="password")
-            remember_me = st.checkbox("Remember me")
-            submitted = st.form_submit_button("Login")
-            
-            if submitted:
-                if username == "testuser" and password == "pass123":
-                    st.session_state.current_user = {
-                        'id': str(random.randint(1, 1000)),
-                        'username': username,
-                        'bio': "Tech enthusiast. Love to share thoughts.",
-                        'karma': 1234,
-                        'threads': 4,
-                        'comments': 9,
-                        'level': "Influencer"
-                    }
-                    st.success("Login successful!")
-                    if lottie_login_success:
-                        st_lottie(lottie_login_success, height=150, key="login_success")
-                    st.balloons()
-                    time.sleep(2)  # Show success animation
-                    st.experimental_rerun()
-                else:
-                    st.error("Invalid credentials")
-                    st.markdown("""
-                    <script>
-                        document.querySelector('.login-card').classList.add('shake');
-                        setTimeout(() => {
-                            document.querySelector('.login-card').classList.remove('shake');
-                        }, 500);
-                    </script>
+    st.markdown("""
+        <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+            <div style="width: 800px; display: flex; gap: 40px; align-items: center;">
+                <div class="login-container" style="flex: 1;">
+                    <div class="brand-area">
+                        <div class="brand-name">ForumHub</div>
+                        <div class="tagline">Where Ideas Thread Together</div>
+                    </div>
+                    <div style="width: 100%; height: 300px;">
                     """, unsafe_allow_html=True)
+    
+    if lottie_wave:
+        st_lottie(lottie_wave, height=300, key="wave")
+    
+    st.markdown("""
+                    </div>
+                </div>
+                <div class="login-card" style="flex: 1;">
+                    <div style="padding: 20px;">
+    """, unsafe_allow_html=True)
+    
+    with st.form("login_form", clear_on_submit=True):
+        st.markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
+        username = st.text_input("Username", placeholder="Enter your username")
+        password = st.text_input("Password", type="password", placeholder="Enter your password")
+        cols = st.columns([3, 1])
+        with cols[0]:
+            remember_me = st.checkbox("Remember me")
+        with cols[1]:
+            st.markdown('<div class="forgot-password"><a href="#">Forgot?</a></div>', unsafe_allow_html=True)
+        
+        submitted = st.form_submit_button("Login", use_container_width=True)
+        
+        if submitted:
+            if username == "testuser" and password == "pass123":
+                st.session_state.current_user = {
+                    'id': str(random.randint(1, 1000)),
+                    'username': username,
+                    'bio': "Tech enthusiast. Love to share thoughts.",
+                    'karma': 1234,
+                    'threads': 4,
+                    'comments': 9,
+                    'level': "Influencer"
+                }
+                st.success("Login successful!")
+                if lottie_login_success:
+                    st_lottie(lottie_login_success, height=150, key="login_success")
+                st.balloons()
+                time.sleep(2)
+                st.experimental_rerun()
+            else:
+                st.error("Invalid credentials")
+                st.markdown("""
+                <script>
+                    document.querySelector('.login-card').classList.add('shake');
+                    setTimeout(() => {
+                        document.querySelector('.login-card').classList.remove('shake');
+                    }, 500);
+                </script>
+                """, unsafe_allow_html=True)
+    
+    st.markdown("""
+                    </div>
+                </div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
 # Main App (After Login)
 else:
