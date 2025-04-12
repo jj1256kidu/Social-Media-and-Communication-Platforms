@@ -1,180 +1,204 @@
 import streamlit as st
-import time
+import pandas as pd
 from datetime import datetime
-import base64
-from PIL import Image
-import io
-import random
-
-# Custom CSS for beautiful UI
-st.markdown("""
-    <style>
-    .main {
-        background-color: #f5f5f5;
-    }
-    .stApp {
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-    .chat-message {
-        padding: 1rem;
-        border-radius: 1rem;
-        margin-bottom: 1rem;
-        display: flex;
-        flex-direction: column;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .chat-message.user {
-        background-color: #2b313e;
-        color: white;
-        margin-left: 20%;
-    }
-    .chat-message.bot {
-        background-color: #f0f2f6;
-        margin-right: 20%;
-    }
-    .stButton>button {
-        border-radius: 50%;
-        height: 3em;
-        width: 3em;
-        background-color: #4CAF50;
-        color: white;
-    }
-    .stTextInput>div>div>input {
-        border-radius: 20px;
-    }
-    </style>
-""", unsafe_allow_html=True)
+import json
+import os
 
 # Initialize session state
-if 'messages' not in st.session_state:
-    st.session_state.messages = []
-if 'groups' not in st.session_state:
-    st.session_state.groups = ['General', 'Work', 'Friends']
-if 'current_group' not in st.session_state:
-    st.session_state.current_group = 'General'
-if 'username' not in st.session_state:
-    st.session_state.username = None
-
-# Mock user data
-mock_users = {
-    'Alice': '👩‍💼',
-    'Bob': '👨‍💼',
-    'Charlie': '👨‍🔬',
-    'David': '👨‍🎨',
-    'Eve': '👩‍🎤'
-}
-
-# Mock messages for each group
-mock_messages = {
-    'General': [
-        {'sender': 'Alice', 'text': 'Hello everyone! 👋', 'time': '10:00 AM'},
-        {'sender': 'Bob', 'text': 'Hi Alice! How are you?', 'time': '10:01 AM'},
-        {'sender': 'Charlie', 'text': 'Good morning! 🌞', 'time': '10:02 AM'}
-    ],
-    'Work': [
-        {'sender': 'David', 'text': 'Meeting at 3 PM today', 'time': '09:30 AM'},
-        {'sender': 'Eve', 'text': 'I\'ll prepare the presentation', 'time': '09:35 AM'}
-    ],
-    'Friends': [
-        {'sender': 'Alice', 'text': 'Who\'s up for lunch? 🍔', 'time': '11:00 AM'},
-        {'sender': 'Bob', 'text': 'Count me in!', 'time': '11:01 AM'}
+if 'posts' not in st.session_state:
+    st.session_state.posts = []
+if 'current_user' not in st.session_state:
+    st.session_state.current_user = None
+if 'categories' not in st.session_state:
+    st.session_state.categories = [
+        {
+            'id': '1',
+            'name': 'General Discussion',
+            'description': 'Talk about anything and everything',
+            'icon': '💬'
+        },
+        {
+            'id': '2',
+            'name': 'Technology',
+            'description': 'Latest tech news and discussions',
+            'icon': '💻'
+        },
+        {
+            'id': '3',
+            'name': 'Gaming',
+            'description': 'Video games and gaming culture',
+            'icon': '🎮'
+        }
     ]
-}
 
-# Login page
-if not st.session_state.username:
-    st.title("💬 Minimal Messenger")
-    st.write("---")
-    
-    username = st.text_input("Enter your username")
+# Custom CSS
+st.markdown("""
+<style>
+    .stApp {
+        background-color: #0a0a0f;
+        color: #ffffff;
+    }
+    .stButton>button {
+        background-color: #00f3ff;
+        color: #0a0a0f;
+        border: none;
+        border-radius: 5px;
+        padding: 0.5rem 1rem;
+    }
+    .stButton>button:hover {
+        background-color: #00ff9f;
+    }
+    .post-card {
+        background-color: #1a1a2e;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .category-card {
+        background-color: #1a1a2e;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .neon-text {
+        color: #00f3ff;
+        text-shadow: 0 0 5px #00f3ff;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Functions
+def handle_login(username):
+    st.session_state.current_user = {
+        'id': '2',
+        'username': username,
+        'avatar': '👤'
+    }
+
+def handle_vote(post_id, is_upvote):
+    for post in st.session_state.posts:
+        if post['id'] == post_id:
+            if is_upvote:
+                post['upvotes'] += 1
+            else:
+                post['downvotes'] += 1
+
+def handle_create_post(title, content, category):
+    if not st.session_state.current_user:
+        return
+
+    new_post = {
+        'id': str(datetime.now().timestamp()),
+        'title': title,
+        'content': content,
+        'author': st.session_state.current_user,
+        'category': category,
+        'upvotes': 0,
+        'downvotes': 0,
+        'comments': [],
+        'createdAt': datetime.now().isoformat()
+    }
+
+    st.session_state.posts.append(new_post)
+
+def handle_add_comment(post_id, content):
+    if not st.session_state.current_user:
+        return
+
+    for post in st.session_state.posts:
+        if post['id'] == post_id:
+            new_comment = {
+                'id': str(datetime.now().timestamp()),
+                'content': content,
+                'author': st.session_state.current_user,
+                'upvotes': 0,
+                'downvotes': 0,
+                'createdAt': datetime.now().isoformat()
+            }
+            post['comments'].append(new_comment)
+
+# Main App
+st.title("Future Forum")
+st.markdown("---")
+
+# Login Section
+if not st.session_state.current_user:
+    username = st.text_input("Enter your username to login")
     if username:
-        st.session_state.username = username
-        st.experimental_rerun()
-
+        handle_login(username)
+        st.success(f"Welcome, {username}!")
 else:
-    # Sidebar
-    with st.sidebar:
-        st.title(f"Welcome, {st.session_state.username}!")
-        st.write("---")
-        
-        # Group selection
-        st.subheader("Groups")
-        for group in st.session_state.groups:
-            if st.button(group, key=f"group_{group}"):
-                st.session_state.current_group = group
-                st.experimental_rerun()
-        
-        # New group creation
-        new_group = st.text_input("Create new group")
-        if new_group and new_group not in st.session_state.groups:
-            st.session_state.groups.append(new_group)
-            st.session_state.current_group = new_group
-            st.experimental_rerun()
-        
-        # Logout button
-        if st.button("Logout"):
-            st.session_state.username = None
-            st.experimental_rerun()
+    st.sidebar.markdown(f"### 👤 {st.session_state.current_user['username']}")
 
-    # Main chat area
-    st.title(f"#{st.session_state.current_group}")
+# Sidebar - Categories
+st.sidebar.markdown("### Categories")
+for category in st.session_state.categories:
+    with st.sidebar.expander(f"{category['icon']} {category['name']}"):
+        st.write(category['description'])
+
+# Main Content
+col1, col2 = st.columns([3, 1])
+
+with col1:
+    st.markdown("### Latest Posts")
     
-    # Display group members
-    members = list(mock_users.keys())
-    st.write(f"👥 Members: {', '.join(members)}")
-    st.write("---")
-    
-    # Display messages
-    for msg in mock_messages.get(st.session_state.current_group, []):
+    # Create Post Form
+    if st.session_state.current_user:
+        with st.expander("Create New Post"):
+            with st.form("create_post_form"):
+                title = st.text_input("Title")
+                content = st.text_area("Content")
+                category = st.selectbox(
+                    "Category",
+                    options=[cat['name'] for cat in st.session_state.categories]
+                )
+                submitted = st.form_submit_button("Post")
+                if submitted and title and content:
+                    handle_create_post(title, content, category)
+                    st.success("Post created successfully!")
+
+    # Display Posts
+    for post in st.session_state.posts:
         with st.container():
-            col1, col2 = st.columns([1, 4])
-            with col1:
-                st.write(f"{mock_users[msg['sender']]} {msg['sender']}")
-            with col2:
-                st.markdown(f"""
-                    <div class="chat-message {'user' if msg['sender'] == st.session_state.username else 'bot'}">
-                        <div>{msg['text']}</div>
-                        <div style="font-size: 0.8em; opacity: 0.7;">{msg['time']}</div>
+            st.markdown(f"""
+            <div class="post-card">
+                <h3>{post['title']}</h3>
+                <p>{post['content']}</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span>{post['author']['avatar']} {post['author']['username']}</span>
+                        <span> • {post['category']}</span>
+                        <span> • {datetime.fromisoformat(post['createdAt']).strftime('%Y-%m-%d')}</span>
                     </div>
-                """, unsafe_allow_html=True)
-    
-    # Message input
-    st.write("---")
-    col1, col2 = st.columns([4, 1])
-    
-    with col1:
-        message = st.text_input("Type your message...", key="input")
-    
-    with col2:
-        uploaded_file = st.file_uploader("📎", type=['png', 'jpg', 'jpeg', 'gif'])
-    
-    # Send message
-    if message or uploaded_file:
-        if message:
-            # Add text message
-            new_message = {
-                'sender': st.session_state.username,
-                'text': message,
-                'time': datetime.now().strftime("%I:%M %p")
-            }
-            if st.session_state.current_group not in mock_messages:
-                mock_messages[st.session_state.current_group] = []
-            mock_messages[st.session_state.current_group].append(new_message)
-        
-        if uploaded_file:
-            # Display uploaded image
-            image = Image.open(uploaded_file)
-            st.image(image, caption='Uploaded Image', use_column_width=True)
-            
-            # Add image message
-            new_message = {
-                'sender': st.session_state.username,
-                'text': f"![Image](data:image/png;base64,{base64.b64encode(uploaded_file.getvalue()).decode()})",
-                'time': datetime.now().strftime("%I:%M %p")
-            }
-            if st.session_state.current_group not in mock_messages:
-                mock_messages[st.session_state.current_group] = []
-            mock_messages[st.session_state.current_group].append(new_message)
-        
-        st.experimental_rerun() 
+                    <div>
+                        <button onclick="handleVote('{post['id']}', true)">👍 {post['upvotes']}</button>
+                        <button onclick="handleVote('{post['id']}', false)">👎 {post['downvotes']}</button>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # Comments Section
+            with st.expander(f"💬 Comments ({len(post['comments'])})"):
+                for comment in post['comments']:
+                    st.markdown(f"""
+                    <div style="margin-left: 1rem; padding: 0.5rem; background-color: #262626; border-radius: 5px;">
+                        <p>{comment['content']}</p>
+                        <small>{comment['author']['avatar']} {comment['author']['username']}</small>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                if st.session_state.current_user:
+                    with st.form(f"comment_form_{post['id']}"):
+                        comment_content = st.text_area("Add a comment")
+                        submitted = st.form_submit_button("Comment")
+                        if submitted and comment_content:
+                            handle_add_comment(post['id'], comment_content)
+                            st.experimental_rerun()
+
+with col2:
+    st.markdown("### Quick Stats")
+    st.metric("Total Posts", len(st.session_state.posts))
+    total_comments = sum(len(post['comments']) for post in st.session_state.posts)
+    st.metric("Total Comments", total_comments)
+    st.metric("Active Users", 1)  # Placeholder for actual user count 
