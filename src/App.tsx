@@ -90,6 +90,9 @@ const App: React.FC = () => {
   const [newPostContent, setNewPostContent] = useState('');
   const [newPostCategory, setNewPostCategory] = useState(categories[0].name);
 
+  const [loginUsername, setLoginUsername] = useState('');
+  const [isLoginFocused, setIsLoginFocused] = useState(false);
+
   const handleLogin = (username: string) => {
     setCurrentUser({
       id: '2',
@@ -179,13 +182,25 @@ const App: React.FC = () => {
                   <span className="font-medium">{currentUser.username}</span>
                 </div>
               ) : (
-                <button
-                  onClick={() => handleLogin('Guest')}
-                  className="minimal-button"
-                >
-                  <UserIcon className="h-5 w-5 mr-2" />
-                  Login
-                </button>
+                <div className="login-container input-animation">
+                  <div className="login-glow"></div>
+                  <div className="relative flex items-center">
+                    <input
+                      type="text"
+                      value={loginUsername}
+                      onChange={(e) => setLoginUsername(e.target.value)}
+                      placeholder="Enter username"
+                      className="login-input"
+                    />
+                    <button
+                      onClick={() => handleLogin(loginUsername)}
+                      disabled={!loginUsername}
+                      className="login-button button-hover"
+                    >
+                      <UserIcon className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
           </div>
